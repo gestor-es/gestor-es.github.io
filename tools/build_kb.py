@@ -55,6 +55,20 @@ UI = {
            "foot": "gestor считает; подаёте вы сами в Sede AEAT. Не налоговая консультация."},
 }
 LOCALE = {"en": "en_US", "es": "es_ES", "ru": "ru_RU"}
+# external guides shown on the kb index pages: (url, language of the guide, title per site language, note per site language)
+GUIDES = [
+    ("https://spain.denyamsk.com/digital-nomad-residence-in-spain-2026-97dfbe479af04e8b94d269f07bf7e0a2", "ru",
+     {"en": "Digital nomad residence in Spain 2026", "es": "Residencia de nómada digital en España 2026", "ru": "ВНЖ цифрового кочевника в Испании 2026"},
+     {"en": "Conditions, timeline for applying from Spain or at a consulate, document checklist. In Russian.",
+      "es": "Requisitos, plazos de la solicitud desde España o en el consulado, lista de documentos. En ruso.",
+      "ru": "Условия, таймлайн подачи из Испании и через консульство, чеклист документов."}),
+    ("https://spain.denyamsk.com/spanish-startup-residence-permit-2026-rus-edition-188230bbb2ce48d7823ce96b15391606", "ru",
+     {"en": "Spanish startup residence permit 2026", "es": "Residencia para emprendedores (startup) en España 2026", "ru": "Стартап-ВНЖ в Испании 2026"},
+     {"en": "Documents, UGE and ENISA application, business plan template, procedure and timeline. In Russian.",
+      "es": "Documentos, solicitud a la UGE y ENISA, plantilla de plan de negocio, procedimiento y plazos. En ruso.",
+      "ru": "Документы, подача в UGE и ENISA, шаблон бизнес-плана, процедура и таймлайн."}),
+]
+GUIDES_TITLE = {"en": "Guides", "es": "Guías", "ru": "Гайды"}
 
 
 def render(md: str) -> str:
@@ -197,6 +211,8 @@ def main():
         items = "\n".join(f'    <li><a class="entry" href="{page_url(lang, s)}">{html.escape(t)}</a><small>{html.escape(d)}</small></li>' for s, t, d in entries)
         body = (f'  <p class="crumbs"><a href="{prefix}">gestor</a></p>\n  <h1 class="doc-title">{ui["kb"]}</h1>\n'
                 f'  <p class="lead">{ui["lead"]}</p>\n  <p class="sub">{ui["note"]}</p>\n  <ul class="index kb-list">\n{items}\n  </ul>')
+        guides = "\n".join(f'    <li><a class="entry" href="{u}" hreflang="{gl}">{html.escape(t[lang])}</a><small>{html.escape(n[lang])}</small></li>' for u, gl, t, n in GUIDES)
+        body += f'\n  <h2>{GUIDES_TITLE[lang]}</h2>\n  <ul class="index kb-list">\n{guides}\n  </ul>'
         ld = {"@context": "https://schema.org", "@graph": [
             {"@type": "CollectionPage", "name": ui["kb"], "inLanguage": lang, "url": SITE + page_url(lang),
              "hasPart": [{"@type": "Article", "headline": t, "url": SITE + page_url(lang, s)} for s, t, _ in entries]},
