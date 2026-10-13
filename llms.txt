@@ -11,7 +11,7 @@ Install through an AI agent: paste the prompt from the README section "Start wit
 - [How gestor works](https://gestor-es.github.io/explainer/): a fictional profile, the path of one invoice and a quarter worked through
 - Site in Spanish and Russian: https://gestor-es.github.io/es/ and https://gestor-es.github.io/ru/; READMEs: [README.es.md](https://raw.githubusercontent.com/gestor-es/gestor-es/main/README.es.md), [README.ru.md](https://raw.githubusercontent.com/gestor-es/gestor-es/main/README.ru.md)
 
-## Knowledge base (sources quoted verbatim; Spanish originals in kb/ are the source of truth)
+## Knowledge base (sources quoted verbatim; Spanish originals in kb/ are the source of truth). HTML on the site: https://gestor-es.github.io/kb/ (also /es/kb/ and /ru/kb/); raw Markdown below
 - [IVA and invoicing](https://raw.githubusercontent.com/gestor-es/gestor-es/main/kb/en/iva-facturacion.md)
 - [IRPF for autónomos](https://raw.githubusercontent.com/gestor-es/gestor-es/main/kb/en/irpf-autonomo.md)
 - [Beckham regime](https://raw.githubusercontent.com/gestor-es/gestor-es/main/kb/en/beckham.md)
