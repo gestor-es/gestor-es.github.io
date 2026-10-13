@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gestor: бесплатный локальный налоговый помощник для autónomo и SL в Испании</title>
+<meta name="description" content="Бесплатный gestor с открытым кодом для autónomo и SL в Испании. Считает IVA, IRPF, Beckham, RETA и модели 303, 130, 349, 390, 111, 115, 202 и объясняет каждую сумму законом. Работает на вашем компьютере, ставит его ваш ИИ-агент.">
+<link rel="canonical" href="https://gestor-es.github.io/ru/">
+<link rel="alternate" hreflang="en" href="https://gestor-es.github.io/">
+<link rel="alternate" hreflang="es" href="https://gestor-es.github.io/es/">
+<link rel="alternate" hreflang="ru" href="https://gestor-es.github.io/ru/">
+<link rel="alternate" hreflang="x-default" href="https://gestor-es.github.io/">
+<link rel="icon" type="image/png" href="/favicon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="gestor">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:url" content="https://gestor-es.github.io/ru/">
+<meta property="og:title" content="gestor: бесплатный локальный налоговый помощник для autónomo и SL в Испании">
+<meta property="og:description" content="Считает ваши декларации и объясняет каждую сумму законом. Подаёте вы сами. Открытый код, MIT.">
+<meta property="og:image" content="https://gestor-es.github.io/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="gestor: IVA, IRPF, Beckham, RETA для autónomo и SL в Испании">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preload" href="/fonts/font-ptsans-400-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://gestor-es.github.io/#app",
+      "name": "gestor",
+      "url": "https://gestor-es.github.io/ru/",
+      "image": "https://gestor-es.github.io/og.png",
+      "description": "Локальный gestor для autónomo и SL в Испании: счета, расходы, IVA/IRPF/Beckham/SL, RETA и календарь подач. Считает декларации и объясняет каждую сумму законом; подаёт пользователь сам.",
+      "applicationCategory": "FinanceApplication",
+      "operatingSystem": "Любая система с Python 3.12+",
+      "softwareVersion": "alpha",
+      "inLanguage": "ru",
+      "isAccessibleForFree": true,
+      "license": "https://opensource.org/licenses/MIT",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+      "sameAs": "https://github.com/gestor-es/gestor-es",
+      "downloadUrl": "https://github.com/gestor-es/gestor-es"
+    },
+    {
+      "@type": "FAQPage",
+      "inLanguage": "ru",
+      "mainEntity": [
+        { "@type": "Question", "name": "gestor подаёт декларации за меня?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Нет. gestor считает декларации и готовит файл для импорта в Sede AEAT. Вы проверяете цифры и подписываете в Sede сами." } },
+        { "@type": "Question", "name": "Где хранятся мои данные?",
+          "acceptedAnswer": { "@type": "Answer", "text": "На вашем компьютере, в одном файле SQLite на профиль в ~/.gestor." } },
+        { "@type": "Question", "name": "Для кого gestor?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Для autónomo в Испании на общем IRPF или в режиме Beckham и для Sociedad Limitada с одним участником и доходом от услуг." } },
+        { "@type": "Question", "name": "С какими ИИ-агентами работает gestor?",
+          "acceptedAnswer": { "@type": "Answer", "text": "С Claude Code и Codex, через MCP-сервер gestor. Агент читает ваши книги и декларации, сохраняет черновики после вашего явного «да» и может заполнить форму в Sede AEAT в вашем браузере." } },
+        { "@type": "Question", "name": "Можно ли пользоваться gestor без ИИ-агента?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Да. Склонируйте репозиторий и запустите python3 -m gestor. Интерфейс откроется по адресу http://127.0.0.1:8765." } },
+        { "@type": "Question", "name": "gestor заменяет gestoría?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Нет. Он считает и объясняет декларации autónomo или SL с одним участником, а подаёте их вы. Каждый источник права помечен: прямо в тексте, толкование или спорно. По спорным вопросам и для полной бухгалтерии SL обращайтесь к специалисту." } },
+        { "@type": "Question", "name": "Это налоговая консультация?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Нет. gestor считает и объясняет с источниками из BOE, AEAT и TGSS. Проверяйте каждую цифру до подписи." } },
+        { "@type": "Question", "name": "Сколько стоит gestor?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Нисколько. Это открытый код под лицензией MIT." } }
+      ]
+    }
+  ]
+}
+</script>
+<link rel="stylesheet" href="/fonts.css">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="wrap">
+<header class="appbar">
+  <a class="brand" href="/ru/">gestor</a>
+  <nav aria-label="Разделы">
+    <a href="#start">Агент</a>
+    <a href="#modelos">Модели</a>
+    <a href="#how">Как работает</a>
+    <a href="#faq">Вопросы</a>
+  </nav>
+  <nav class="langs" aria-label="Язык"><a href="/" lang="en" hreflang="en">EN</a><a href="/es/" lang="es" hreflang="es">ES</a><a href="/ru/" lang="ru" hreflang="ru" aria-current="page">RU</a></nav>
+  <a class="gh" href="https://github.com/gestor-es/gestor-es">GitHub</a>
+</header>
+<main>
+  <div class="hero">
+    <div class="seal" aria-hidden="true"></div>
+    <p class="kicker">Открытый код · для autónomo и SL в Испании</p>
+    <h1>Локальный gestor для autónomo и SL в Испании</h1>
+    <p class="lead">Счета, расходы, IVA, IRPF, Beckham, RETA и календарь подач. gestor считает ваши декларации и объясняет каждую сумму законом. Подаёте вы сами.</p>
+    <p class="stamps">
+      <span class="stamp late">Alpha · не налоговая консультация</span>
+      <span class="stamp ok">MIT · бесплатно</span>
+      <span class="stamp wait">Работает на вашем компьютере</span>
+    </p>
+    <div class="cta">
+      <a class="btn primary" href="#start">Установить через агента</a>
+      <a class="btn" href="https://github.com/gestor-es/gestor-es">Код на GitHub</a>
+    </div>
+  </div>
+
+  <section id="start">
+    <div class="junction" aria-hidden="true"><span>agente</span></div>
+    <h2>Начать с агентом</h2>
+    <p class="sub">Вставьте это в Claude Code или Codex. Агент установит gestor и проведёт первую сессию, по одному вопросу за раз. Он ничего не подаёт, не подписывает и не оплачивает.</p>
+    <!-- same text as README.ru.md "Начать с агентом" in gestor-es/gestor-es, reflowed one step per line; keep in sync -->
+    <div class="slip">
+      <div class="slip-head"><b>Для Claude Code или Codex</b><button class="btn primary" type="button" id="copy" data-done="Скопировано">Копировать</button></div>
+<div class="prompt-text" id="prompt">
+<p>Установи gestor из <span class="nw">https://github.com/gestor-es/gestor-es</span> и проведи мою первую сессию. Говори со мной по-русски.</p>
+<p>1. Склонируй в <span class="nw">~/gestor-es</span>. gestor нужен Python 3.12+: если python3 старее, помоги поставить новый и используй его ниже.</p>
+<p>2. В <span class="nw">~/gestor-es</span> запусти интерфейс так, чтобы он работал и после твоего выхода:</p>
+<p class="in">nohup python3 -m gestor &gt; gestor.log 2&gt;&amp;1 &amp;</p>
+<p class="in">Потом дай мне ссылку http://127.0.0.1:8765.</p>
+<p>3. Подключи MCP-сервер gestor для своей программы командой из раздела README «Помощь в Sede из Claude Code или Codex», запуская из <span class="nw">~/gestor-es</span>.</p>
+<p>4. Скажи мне перезапустить тебя в <span class="nw">~/gestor-es</span>, чтобы сервер загрузился (<span class="nw">`claude --continue`</span> или <span class="nw">`codex resume --last`</span>), и написать «продолжай». Потом следуй инструкциям First session от сервера gestor.</p>
+<p>Ничего не подавай, не подписывай и не оплачивай. Не спрашивай PIN Cl@ve, пароли и пароль сертификата.</p>
+</div>
+    </div>
+    <p>Следующие сессии: в Claude Code — <code>/mcp__gestor__start</code>, в Codex — «начни с gestor». Агент назовёт ближайший срок и что для него нужно.</p>
+    <h3>Без агента</h3>
+<pre class="plain"><code>git clone https://github.com/gestor-es/gestor-es ~/gestor-es
+cd ~/gestor-es
+python3 -m gestor        # http://127.0.0.1:8765, данные в ~/.gestor</code></pre>
+  </section>
+
+  <section id="modelos">
+    <div class="junction" aria-hidden="true"><span>303</span></div>
+    <h2>Что считает</h2>
+    <p class="sub">Все декларации, которые за год встречаются autónomo или SL с одним участником, с обычным сроком. gestor переносит сроки, которые выпадают на выходные и общенациональные праздники.</p>
+    <ul class="index">
+      <li><span class="entry"><b>303</b>IVA<span>20.04 · 20.07 · 20.10 · 30.01</span></span><small>Квартальная декларация по IVA</small></li>
+      <li><span class="entry"><b>130</b>Аванс IRPF<span>20.04 · 20.07 · 20.10 · 30.01</span></span><small>autónomo на общем IRPF</small></li>
+      <li><span class="entry"><b>111</b>Retenciones<span>20.04 · 20.07 · 20.10 · 20.01</span></span><small>Удержания с выплат специалистам и зарплат, которые платите вы</small></li>
+      <li><span class="entry"><b>115</b>Retenciones по аренде<span>20.04 · 20.07 · 20.10 · 20.01</span></span><small>Аренда офиса с удержанием</small></li>
+      <li><span class="entry"><b>349</b>Операции в ЕС<span>20.04 · 20.07 · 20.10 · 30.01</span></span><small>Только в кварталы с клиентами или поставщиками из ЕС</small></li>
+      <li><span class="entry"><b>202</b>Аванс налога на прибыль<span>20.04 · 20.10 · 20.12</span></span><small>Sociedad Limitada</small></li>
+      <li><span class="entry"><b>390</b>Годовая сводка IVA<span>30.01</span></span><small>Сводка 303 за год</small></li>
+      <li><span class="entry"><b>347</b>Операции с контрагентами<span>февраль</span></span><small>Больше 3 005,06 € на контрагента</small></li>
+      <li><span class="entry"><b>100</b>Renta<span>апрель–30.06</span></span><small>Годовой IRPF, оценка</small></li>
+      <li><span class="entry"><b>151</b>Beckham<span>апрель–30.06</span></span><small>Особый режим ст. 93, оценка</small></li>
+      <li><span class="entry"><b>200</b>Impuesto sobre Sociedades<span>25.07</span></span><small>SL, оценка</small></li>
+      <li><span class="entry"><b>RETA</b>Соцстрах<span>ежемесячно</span></span><small>Взнос autónomo</small></li>
+    </ul>
+    <p class="calendar-note">Региональные шкалы IRPF: Valencia, Asturias, Madrid, Cataluña и Andalucía. Для остальных регионов — приближение по государственной шкале, экран об этом пишет.</p>
+  </section>
+
+  <section id="how">
+    <div class="junction" aria-hidden="true"><span>§ ley</span></div>
+    <h2>Как работает</h2>
+    <div class="boxes">
+      <span class="box"><sup>01</sup>local</span>
+      <p>Работает на вашем компьютере. Python 3.12+, только стандартная библиотека, один файл SQLite на профиль в <code>~/.gestor</code>.</p>
+      <span class="box"><sup>02</sup>§</span>
+      <p>У каждой суммы есть знак §. Он открывает источник: цитату из BOE, AEAT или DGT на испанском, перевод и что это значит для вас.</p>
+      <span class="box"><sup>03</sup>MCP</span>
+      <p>MCP-сервер даёт Claude Code или Codex читать ваши книги и декларации. Черновики он сохраняет только после вашего явного «да».</p>
+      <span class="box"><sup>04</sup>Validar</span>
+      <p>В Sede AEAT агент открывает форму, загружает файл или вводит casillas и нажимает «Validar». «Presentar» он не нажимает. Подписываете вы.</p>
+      <span class="box"><sup>05</sup>EN · ES · RU</span>
+      <p>Интерфейс, источники права, база знаний и документация на английском, испанском и русском.</p>
+    </div>
+    <p class="sub">Посмотрите на вымышленном профиле: из чего состоит gestor, путь одного счёта и разобранный квартал. <a href="/ru/explainer/">Как работает gestor</a></p>
+    <div class="next"><b>Пока нет</b>Импорта выписки банка, полной бухгалтерии SL (журнал, годовая отчётность), Verifactu. Файлы для «Importar» ещё не проверены на настоящей Sede.</div>
+  </section>
+
+  <section id="faq">
+    <div class="junction" aria-hidden="true"><span>dudas</span></div>
+    <h2>Вопросы</h2>
+    <dl>
+      <dt>gestor подаёт декларации за меня?</dt>
+      <dd>Нет. gestor считает декларации и готовит файл для импорта в Sede AEAT. Вы проверяете цифры и подписываете в Sede сами.</dd>
+      <dt>Где хранятся мои данные?</dt>
+      <dd>На вашем компьютере, в одном файле SQLite на профиль в <code>~/.gestor</code>.</dd>
+      <dt>Для кого gestor?</dt>
+      <dd>Для autónomo в Испании на общем IRPF или в режиме Beckham и для Sociedad Limitada с одним участником и доходом от услуг.</dd>
+      <dt>С какими ИИ-агентами работает gestor?</dt>
+      <dd>С Claude Code и Codex, через MCP-сервер gestor. Агент читает ваши книги и декларации, сохраняет черновики после вашего явного «да» и может заполнить форму в Sede AEAT в вашем браузере.</dd>
+      <dt>Можно ли пользоваться gestor без ИИ-агента?</dt>
+      <dd>Да. Склонируйте репозиторий и запустите <code>python3 -m gestor</code>. Интерфейс откроется по адресу http://127.0.0.1:8765.</dd>
+      <dt>gestor заменяет gestoría?</dt>
+      <dd>Нет. Он считает и объясняет декларации autónomo или SL с одним участником, а подаёте их вы. Каждый источник права помечен: прямо в тексте, толкование или спорно. По спорным вопросам и для полной бухгалтерии SL обращайтесь к специалисту.</dd>
+      <dt>Это налоговая консультация?</dt>
+      <dd>Нет. gestor считает и объясняет с источниками из BOE, AEAT и TGSS. Проверяйте каждую цифру до подписи.</dd>
+      <dt>Сколько стоит gestor?</dt>
+      <dd>Нисколько. Это открытый код под лицензией MIT.</dd>
+    </dl>
+    <div class="foot">
+      <span>gestor считает; подаёте вы сами в Sede AEAT. Не налоговая консультация.</span>
+      <span><a href="https://github.com/gestor-es/gestor-es">github.com/gestor-es/gestor-es</a> · MIT · Шрифты PT Sans, PT Mono, Prata (<a href="/fonts/OFL.txt">OFL</a>)</span>
+    </div>
+  </section>
+</main>
+</div>
+<footer class="colophon wrap" aria-hidden="true"><div class="giant">gestor</div><img src="/img/papel-sellado.jpg" alt="" width="800" height="368"></footer>
+<script>
+document.getElementById("copy").onclick = async (e) => {
+  const b = e.target, label = b.textContent;
+  const lines = [...document.querySelectorAll("#prompt p")].map((p) => (p.classList.contains("in") ? "   " : "") + p.textContent);
+  await navigator.clipboard.writeText(lines.join("\n"));
+  b.textContent = b.dataset.done;
+  setTimeout(() => (b.textContent = label), 1500);
+};
+</script>
+</body>
+</html>

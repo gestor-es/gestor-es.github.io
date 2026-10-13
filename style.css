@@ -1,0 +1,127 @@
+/* tokens and pieces (junction, colophon, stamp, box, slip, index leaders) from gestor/static/style.css, variant «Бланк modelo» */
+:root {
+  --desk: #d5d9d6; --paper: #fff; --print: #24302a; --print-2: #4a5a51; --rule: #9aa79f; --band: #e4ebe6;
+  --pen: #1b3a9e; --pen-soft: #eef1fb; --stamp-ok: #4b3a9a; --stamp-late: #b0261c;
+  --mono: "PT Mono", ui-monospace, monospace; --sans: "PT Sans", system-ui, sans-serif; --display: "Prata", Georgia, serif;
+  --pad: 56px;
+}
+* { box-sizing: border-box; }
+html { background: var(--desk); scroll-behavior: smooth; }
+body { margin: 0; color: var(--print); font: 17px/1.5 var(--sans); font-variant-numeric: tabular-nums; }
+::selection { background: var(--pen); color: #fff; }
+a { color: var(--pen); text-underline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--pen); outline-offset: 2px; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 18px; }
+
+/* app bar */
+.appbar { display: flex; align-items: baseline; gap: 30px; padding: 18px 4px 14px; }
+.brand { font: 400 28px/1 var(--display); letter-spacing: -.01em; color: var(--print); text-decoration: none; }
+.appbar nav { display: flex; flex-wrap: wrap; gap: 6px 22px; flex: 1; }
+.appbar nav a { color: var(--print-2); text-decoration: none; padding-bottom: 3px; border-bottom: 2px solid transparent; }
+.appbar nav a:hover { color: var(--print); border-color: var(--print); }
+.appbar .langs { flex: none; order: 0; flex-basis: auto; gap: 12px; margin-left: auto; font: 14px var(--mono); }
+.appbar .langs a[aria-current] { color: var(--pen); border-color: var(--pen); }
+.appbar .gh { color: var(--pen); text-decoration: none; }
+
+/* the sheet */
+main { position: relative; overflow: hidden; padding: 52px var(--pad) 32px; background: var(--paper);
+  box-shadow: 0 1px 2px rgba(20,30,25,.18), 0 6px 18px -10px rgba(20,30,25,.25); }
+h1 { margin: 0 0 18px; max-width: 9.6em; font: 400 clamp(36px, 6vw, 66px)/1.04 var(--display); letter-spacing: -.015em; }
+h2 { margin: 14px 0 12px; font: 400 32px/1.15 var(--display); }
+.kicker { margin: 0 0 14px; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--print-2); }
+.lead { max-width: 36em; margin: 0 0 20px; font-size: 20px; line-height: 1.45; }
+.sub { max-width: 44em; margin: 0 0 18px; color: var(--print-2); }
+
+/* hero: the coat-of-arms seal from the papel sellado, struck over the corner of the sheet */
+.hero { position: relative; padding-bottom: 8px; }
+.seal { position: absolute; top: -18px; right: -8px; width: 300px; aspect-ratio: 1; border-radius: 50%; pointer-events: none;
+  background: url(/img/papel-sellado.jpg) no-repeat; background-size: 1132px auto; background-position: -40px -57px;
+  filter: grayscale(1) contrast(1.4); mix-blend-mode: multiply; opacity: .85; transform: rotate(-14deg); }
+.hero .stamps { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; margin: 0 0 28px; }
+.stamp { display: inline-block; padding: 4px 10px 3px; border: 1.5px solid currentColor; font: 700 13px/1.3 var(--sans);
+  letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; }
+.stamp.late { color: var(--stamp-late); }
+.stamp.ok { color: var(--stamp-ok); }
+.stamp.wait { color: var(--print-2); border-style: dashed; }
+.cta { display: flex; flex-wrap: wrap; gap: 12px; }
+.btn { display: inline-flex; align-items: center; height: 44px; padding: 0 20px; border: 1px solid var(--print); background: var(--paper);
+  color: var(--print); font: 700 16px var(--sans); text-decoration: none; cursor: pointer; white-space: nowrap; }
+.btn:hover { background: var(--band); }
+.btn.primary { background: var(--pen); border-color: var(--pen); color: #fff; }
+.btn.primary:hover { background: #142c7a; }
+
+/* oversized word standing on the seam between two blocks (decoration, aria-hidden) */
+.junction { margin: 46px calc(-1 * var(--pad)) 0; height: .73em; overflow: hidden; border-bottom: 1px solid var(--print);
+  font: 400 clamp(96px, 17vw, 220px)/1 var(--display); color: #dae2dc; text-transform: uppercase;
+  letter-spacing: -.02em; white-space: nowrap; user-select: none; pointer-events: none; }
+.junction span { display: block; margin: .02em 0 0 calc(var(--pad) - 8px); }
+section { scroll-margin-top: 16px; }
+
+/* the prompt as a payment slip: dashed tear lines, pen ink */
+.slip { margin: 8px 0 14px; padding: 18px 24px 22px; background: var(--pen-soft); border-top: 1px dashed var(--print-2); border-bottom: 1px dashed var(--print-2); }
+.slip-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; }
+.slip-head b { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--pen); }
+/* one paragraph per step: wrapped lines hang under the text after "1. ", commands keep their own line */
+.prompt-text { font: 15px/1.6 var(--mono); color: var(--pen); }
+.prompt-text p { margin: 0; padding-left: 3ch; text-indent: -3ch; }
+.prompt-text p:first-child, .prompt-text p:last-child { padding-left: 0; text-indent: 0; }
+.prompt-text p + p { margin-top: 6px; }
+.prompt-text p.in { text-indent: 0; margin-top: 0; }
+.nw { white-space: nowrap; }
+pre { margin: 0; overflow-x: auto; font: 15px/1.6 var(--mono); color: var(--pen); white-space: pre-wrap; }
+.plain { padding: 14px 18px; border: 1px solid var(--rule); color: var(--print); }
+code { font: 15px var(--mono); background: var(--band); padding: 1px 4px; }
+pre code { background: none; padding: 0; font: inherit; color: inherit; }
+h3 { margin: 26px 0 8px; font-size: 17px; }
+
+/* modelos as the index of a book: serif entry, dot leader, deadlines as page numbers */
+.index { max-width: 800px; margin: 18px 0 8px; padding: 0; list-style: none; }
+.index li { margin: 0 0 14px; }
+.entry { display: flex; align-items: baseline; gap: 8px; font: 400 20px/1.25 var(--display); }
+.entry b { font: 400 20px var(--mono); color: var(--pen); min-width: 3.4em; }
+.entry::after { content: ""; order: 2; flex: 1; min-width: 16px; border-bottom: 1px dotted var(--rule); transform: translateY(-5px); }
+.entry span { order: 3; font: 14px var(--mono); color: var(--print-2); white-space: nowrap; }
+.index small { display: block; margin: 2px 0 0 calc(3.4em * 20 / 15 + 8px); font-size: 15px; color: var(--print-2); }
+.calendar-note { font-size: 14px; color: var(--print-2); }
+
+/* how it works: each point filed in a casilla */
+.boxes { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 14px 24px; align-items: center; margin: 18px 0 0; }
+.box { position: relative; display: block; border: 1px solid var(--print-2); padding: 17px 10px 5px; text-align: right;
+  font: 18px var(--mono); color: var(--pen); }
+.box sup { position: absolute; left: 6px; top: 3px; font: 11px var(--sans); color: var(--print-2); }
+.boxes p { margin: 0; }
+.next { margin: 30px 0 0; padding: 12px 14px; background: #fbf1ef; border-left: 3px solid var(--stamp-late); }
+.next b { display: block; margin-bottom: 2px; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--stamp-late); }
+
+dl { max-width: 46em; margin: 8px 0 0; }
+dt { margin-top: 20px; font: 400 21px/1.3 var(--display); }
+dd { margin: 6px 0 0; }
+.foot { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px 20px; margin-top: 44px; padding-top: 12px;
+  border-top: 1px solid var(--rule); font-size: 14px; color: var(--print-2); }
+.foot a { color: var(--print-2); }
+
+/* colophon on the desk: the wordmark cut at the bottom, beside the header of Spanish papel sellado (1806–1813, public domain) */
+.colophon { container-type: inline-size; overflow: hidden; display: grid; grid-template-columns: 1fr auto; align-items: start; gap: 2cqw; }
+.colophon .giant { min-width: 0; height: .76em; overflow: hidden; padding-top: .02em; font: 400 15cqw/1 var(--display); color: #c5ccc7;
+  text-transform: uppercase; letter-spacing: -.03em; white-space: nowrap; user-select: none; }
+.colophon img { display: block; height: 11.1cqw; width: auto; margin-top: .3cqw; mix-blend-mode: multiply; filter: grayscale(1) contrast(2.2); }
+
+@media (max-width: 760px) {
+  :root { --pad: 18px; }
+  .wrap { padding: 0; }
+  .appbar { padding: 12px 14px 10px; gap: 8px 18px; flex-wrap: wrap; }
+  .appbar nav { order: 3; flex-basis: 100%; }
+  main { padding-top: 30px; }
+  .seal { width: 170px; background-size: 642px auto; background-position: -23px -32px; top: -24px; right: -40px; opacity: .35; }
+  h1 { max-width: none; }
+  .lead { font-size: 18px; }
+  .junction { margin-top: 34px; }
+  .slip { padding: 16px; }
+  .prompt-text { font-size: 14px; }
+  .boxes { grid-template-columns: 1fr; gap: 6px; }
+  .boxes p { margin-bottom: 12px; }
+  .index small { margin-left: 0; }
+  .colophon img { display: none; }
+  .colophon .giant { font-size: 21cqw; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }

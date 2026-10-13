@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Как работает gestor: один счёт и один квартал на вымышленном профиле</title>
+<meta name="description" content="Как работает gestor на вымышленном autónomo в режиме Beckham: из чего состоит программа, путь одного счёта до модели 303 и разобранный квартал с законом за каждой суммой.">
+<link rel="canonical" href="https://gestor-es.github.io/ru/explainer/">
+<link rel="alternate" hreflang="en" href="https://gestor-es.github.io/explainer/">
+<link rel="alternate" hreflang="es" href="https://gestor-es.github.io/es/explainer/">
+<link rel="alternate" hreflang="ru" href="https://gestor-es.github.io/ru/explainer/">
+<link rel="alternate" hreflang="x-default" href="https://gestor-es.github.io/explainer/">
+<link rel="icon" type="image/png" href="/favicon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="gestor">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:url" content="https://gestor-es.github.io/ru/explainer/">
+<meta property="og:title" content="Как работает gestor: один счёт и один квартал на вымышленном профиле">
+<meta property="og:description" content="Как работает gestor на вымышленном autónomo в режиме Beckham: из чего состоит программа, путь одного счёта до модели 303 и разобранный квартал с законом за каждой суммой.">
+<meta property="og:image" content="https://gestor-es.github.io/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="/fonts.css">
+<style>
+:root {
+  --desk: #d5d9d6; --paper: #fff; --print: #24302a; --print-2: #4a5a51; --rule: #9aa79f; --band: #e4ebe6;
+  --pen: #1b3a9e; --pen-soft: #eef1fb; --ok: #4b3a9a; --late: #b0261c; --doubt: #8a5a00;
+  --mono: "PT Mono", ui-monospace, Menlo, monospace; --sans: "PT Sans", system-ui, sans-serif; --display: "Prata", "PT Serif", Georgia, serif;
+}
+* { box-sizing: border-box; }
+html { background: var(--desk); }
+body { margin: 0; color: var(--print); font: 16px/1.5 var(--sans); font-variant-numeric: tabular-nums; }
+.sheet { max-width: 980px; margin: 28px auto 60px; background: var(--paper); padding: 44px 56px 56px;
+  box-shadow: 0 1px 2px rgba(20,30,25,.18), 0 18px 40px -18px rgba(20,30,25,.45); }
+h1 { font: 400 40px/1.1 var(--display); margin: 0 0 10px; }
+h2 { font: 400 26px/1.2 var(--display); margin: 56px 0 6px; padding-top: 18px; border-top: 1px solid var(--rule); }
+h2 small { font: 14px var(--mono); color: var(--print-2); margin-right: 10px; }
+.lead { color: var(--print-2); margin: 0 0 18px; max-width: 70ch; }
+p { max-width: 72ch; }
+.pen { color: var(--pen); font-family: var(--mono); }
+.muted { color: var(--print-2); }
+code { font: 14px var(--mono); background: var(--band); padding: 1px 5px; }
+button { font: inherit; cursor: pointer; border: 1px solid var(--print); background: var(--paper); color: var(--print); padding: 6px 14px; }
+button:hover { background: var(--band); }
+button[aria-pressed=true] { background: var(--print); color: #fff; }
+.stamp { display: inline-block; font: 700 13px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; padding: 6px 9px;
+  border: 2px solid currentColor; color: var(--ok); transform: rotate(-2deg); }
+.stamp.late { color: var(--late); }
+.stamp.doubt { color: var(--doubt); }
+
+/* 1. idea */
+.idea { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin: 22px 0 8px; border: 1px solid var(--print); }
+.idea > div { padding: 18px 20px; border-right: 1px solid var(--rule); }
+.idea > div:last-child { border-right: 0; }
+.idea b { display: block; font: 400 22px/1.2 var(--display); margin: 10px 0 6px; }
+.idea span.n { font: 13px var(--mono); color: var(--print-2); }
+
+/* 2. map */
+.map { display: grid; grid-template-columns: 1fr; gap: 14px; }
+.flows { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 10px; }
+svg text { font-family: var(--sans); }
+.node rect { fill: var(--paper); stroke: var(--print); stroke-width: 1.2; }
+.node { cursor: pointer; }
+.node:hover rect { fill: var(--band); }
+.node.on rect { stroke: var(--pen); stroke-width: 2.5; fill: var(--pen-soft); }
+.node.ext rect { stroke-dasharray: 5 4; }
+.node .t { font-size: 15px; font-weight: 700; fill: var(--print); }
+.node .s { font-size: 12px; fill: var(--print-2); font-family: var(--mono); }
+.edge { stroke: var(--rule); stroke-width: 1.4; fill: none; }
+.edge.on { stroke: var(--pen); stroke-width: 2.6; stroke-dasharray: 8 6; animation: run 0.7s linear infinite; }
+@keyframes run { to { stroke-dashoffset: -28; } }
+.panel { border: 1px solid var(--print); padding: 16px 18px; min-height: 190px; }
+.panel h3 { margin: 0 0 4px; font: 400 21px/1.2 var(--display); }
+.panel .file { font: 13px var(--mono); color: var(--print-2); margin-bottom: 10px; word-break: break-all; }
+.panel ul { padding-left: 18px; margin: 8px 0 0; }
+.panel li { margin: 4px 0; }
+ol.flowsteps { margin: 8px 0 0; padding-left: 20px; }
+
+/* 3. stepper */
+.steps { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 22px; margin-top: 16px; }
+.steps ol { list-style: none; margin: 0; padding: 0; counter-reset: s; }
+.steps li { counter-increment: s; padding: 8px 10px; cursor: pointer; border-left: 3px solid transparent; color: var(--print-2); }
+.steps li::before { content: counter(s) ". "; font-family: var(--mono); }
+.steps li.done { color: var(--print); }
+.steps li.on { border-color: var(--pen); color: var(--pen); background: var(--pen-soft); }
+.card { border: 1px solid var(--print); padding: 18px 20px; min-height: 250px; position: relative; }
+.card h3 { margin: 0 0 8px; font: 400 22px/1.2 var(--display); }
+.card .stamp { position: absolute; right: 18px; top: 16px; }
+.rec { font: 14px/1.6 var(--mono); background: var(--band); padding: 10px 12px; margin: 10px 0; white-space: pre-wrap; }
+.rec em { color: var(--pen); font-style: normal; font-weight: 700; }
+.nav2 { display: flex; gap: 8px; margin-top: 12px; }
+
+/* tables */
+table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+th { text-align: left; font: 12px var(--mono); text-transform: uppercase; letter-spacing: .05em; color: var(--print-2);
+  border-bottom: 1.5px solid var(--print); padding: 6px 8px; }
+td { padding: 7px 8px; border-bottom: 1px solid var(--band); vertical-align: top; }
+td.num { text-align: right; font-family: var(--mono); color: var(--pen); white-space: nowrap; }
+td.box { font: 13px var(--mono); color: var(--print-2); white-space: nowrap; }
+tr.hot td { background: var(--pen-soft); }
+tr.total td { border-top: 1.5px solid var(--print); font-weight: 700; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; }
+.two h3 { font: 700 14px var(--mono); text-transform: uppercase; letter-spacing: .05em; margin: 18px 0 0; }
+
+/* 5. slider */
+.calc { border: 1px solid var(--print); padding: 18px 20px; margin-top: 14px; }
+input[type=range] { width: 100%; accent-color: var(--pen); }
+.big { font: 30px var(--mono); color: var(--pen); }
+.out { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin-top: 14px; border-top: 1px solid var(--rule); }
+.out > div { padding: 12px 14px 4px 0; }
+.out .lbl { font: 12px var(--mono); text-transform: uppercase; color: var(--print-2); letter-spacing: .05em; }
+.out .v { font: 22px var(--mono); color: var(--pen); }
+.out .d { font-size: 14px; color: var(--print-2); }
+
+/* 6. regime */
+.duty td:first-child { font: 700 15px var(--mono); width: 70px; }
+.duty tr.gone td { color: var(--print-2); }
+
+/* 7. agent */
+.lane { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; margin-top: 16px; border: 1px solid var(--print); }
+.lane > div { padding: 14px; border-right: 1px solid var(--rule); font-size: 15px; }
+.lane > div:last-child { border-right: 0; background: #fbf3f2; }
+.lane b { display: block; font: 13px var(--mono); color: var(--print-2); margin-bottom: 6px; }
+
+ul.no li { margin: 6px 0; }
+.colophon { margin-top: 50px; font-size: 14px; color: var(--print-2); border-top: 1px solid var(--rule); padding-top: 14px; }
+.colophon code { font-size: 12px; }
+@media (max-width: 820px) {
+  .sheet { padding: 28px 20px; } .map, .steps, .two { grid-template-columns: 1fr; } .idea, .lane, .out { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<p style="max-width:1100px;margin:14px auto 0;padding:0 18px;font:15px var(--sans)"><a href="/ru/" style="color:var(--pen)">← Главная gestor</a></p>
+<main class="sheet">
+<h1>gestor: как он работает сейчас</h1>
+<p class="lead" id="meta"></p>
+
+<h2><small>01</small>Одна идея</h2>
+<p>gestor хранит только факты. Каждый раз он заново считает по ним все декларации. Декларации подаёте вы.</p>
+<div class="idea">
+  <div><span class="n">ВХОД</span><b>Факты</b>Счета, расходы, профиль и поданные декларации. Вы вводите их в формах.</div>
+  <div><span class="n">ВНУТРИ</span><b>Расчёт</b>Движок считает casillas при каждом открытии страницы. Он не хранит уже посчитанные суммы.</div>
+  <div><span class="n">ВЫХОД</span><b>Подаёте вы</b>gestor даёт вам casillas, норму с § и файл для Sede. Вы подписываете в Sede.</div>
+</div>
+
+<h2><small>02</small>Из чего он состоит</h2>
+<p class="lead">Нажмите на блок, чтобы увидеть, что он делает. Кнопки ниже показывают, какой путь проходит каждое действие.</p>
+<div class="flows" id="flows"></div>
+<div class="map">
+  <svg id="svg" viewBox="0 0 760 375" role="img" aria-label="Схема частей gestor"></svg>
+  <div class="panel" id="panel"></div>
+</div>
+
+<h2><small>03</small>Путь одного счёта</h2>
+<p class="lead" id="steplead"></p>
+<div class="steps">
+  <ol id="steplist"></ol>
+  <div>
+    <div class="card" id="stepcard"></div>
+    <div class="nav2"><button id="prev">← Назад</button><button id="next">Дальше →</button></div>
+  </div>
+</div>
+
+<h2><small>04</small>Q3 2026: откуда берётся 303 = <span id="r303h"></span></h2>
+<p class="lead">Слева факты из базы данных. Справа casillas, которые движок посчитал по этим фактам. Наведите курсор на casilla: подсветятся факты, из которых она получается.</p>
+<div class="two">
+  <div>
+    <h3>Счета Q3, тип eu_b2b, IVA 0 %</h3>
+    <table id="tinv"></table>
+    <h3>Расходы Q3 с IVA</h3>
+    <table id="texp"></table>
+  </div>
+  <div>
+    <h3>303, 3T: casillas</h3>
+    <table id="t303"></table>
+    <h3>349, 3T</h3>
+    <table id="t349"></table>
+  </div>
+</div>
+<p id="q3note"></p>
+
+<h2><small>05</small>Что будет, если выставить ещё один счёт</h2>
+<p class="lead">Счёт тому же клиенту с Кипра, 2026 год. Движок применяет правила régimen Beckham. Двигайте ползунок.</p>
+<div class="calc">
+  <div class="big" id="xval"></div>
+  <input type="range" id="x" min="0" max="20000" step="500" value="0" aria-label="Сумма нового счёта, евро">
+  <div class="out">
+    <div><div class="lbl">303 за квартал</div><div class="v" id="o303"></div><div class="d">IVA 0 %: результат не меняется. Растёт только casilla 59.</div></div>
+    <div><div class="lbl">349 за квартал</div><div class="v" id="o349"></div><div class="d">Это информационная декларация: платить ничего не нужно.</div></div>
+    <div><div class="lbl">151 за 2026, к уплате</div><div class="v" id="o151"></div><div class="d" id="d151"></div></div>
+  </div>
+</div>
+<p id="calcnote" class="muted"></p>
+
+<h2><small>06</small>Режим решает, что вы подаёте</h2>
+<p class="lead">Одна настройка, <code>beckham_first_year</code>, меняет весь набор деклараций. Движок (<code>tax.duties()</code>) построил обе таблицы ниже по данным примера за 2026 год.</p>
+<div class="flows">
+  <button data-reg="beckham" aria-pressed="true">Beckham (режим примера)</button>
+  <button data-reg="general" aria-pressed="false">Если бы это был общий IRPF</button>
+</div>
+<table class="duty" id="tduty"></table>
+
+<h2><small>07</small>Как агент помогает с Sede</h2>
+<p class="lead">Claude Code или Codex работает через <code>mcp.py</code>. Агент читает расчёт и после вашего «да» пишет в базу. Он ничего не подаёт и не платит.</p>
+<div class="lane">
+  <div><b>1. АГЕНТ</b>Вызывает <code>declarations</code>: список деклараций года со сроками и статусом.</div>
+  <div><b>2. MCP</b>Вызывает <code>declaration</code>: casillas, пометки с § и файл в <code>~/.gestor/sede/main/</code>.</div>
+  <div><b>3. CHROME</b>Агент открывает форму Sede в вашем браузере, где вы уже вошли в систему.</div>
+  <div><b>4. ПРОВЕРКА</b>Агент загружает файл или вписывает casillas. Он нажимает «Validar declaración». Он сравнивает экран с gestor.</div>
+  <div><b>5. ЗАПРЕЩЕНО</b><span class="stamp late">не нажимает</span><br><br>«Presentar declaración» и «Firmar y enviar». Это правило записано в <code>INSTRUCTIONS</code>. Подписываете вы.</div>
+</div>
+
+<h2><small>08</small>Чего gestor не делает</h2>
+<ul class="no">
+  <li>Не подаёт декларации и не платит.</li>
+  <li>Не читает банк. Выписку вводите вы или агент.</li>
+  <li>Не считает надбавки за подачу декларации с опозданием (recargos por declaración extemporánea).</li>
+  <li>Casilla 72 из modelo 303 появляется только в пометке.</li>
+  <li>Знает только общенациональные праздники. Если срок выпадает на выходной или общенациональный праздник (включая Страстную пятницу), gestor переносит его на следующий рабочий день. Региональные и местные праздники он не учитывает, хотя они тоже продлевают срок.</li>
+  <li>Файлы для «Importar» ещё не проверены в настоящей Sede. В файле 151 поля пола, даты рождения и IAE совпали байт в байт с эталонным файлом другой программы.</li>
+</ul>
+
+<div class="colophon" id="colophon"></div>
+</main>
+
+<script>
+const D = {"today": "2026-10-13", "lines": {"__init__.py": 4, "__main__.py": 13, "core.py": 99, "db.py": 129, "i18n.py": 47, "mcp.py": 386, "rules.py": 120, "sede.py": 211, "sources.py": 71, "tax.py": 1262, "web.py": 1669}, "sources": {"verified": 121, "interpretation": 11, "disputed": 4}, "inv": [{"no": "FACT-2026-00007", "date": "2026-07-31", "notes": "", "base": 400000}, {"no": "FACT-2026-00008", "date": "2026-08-31", "notes": "", "base": 400000}, {"no": "FACT-2026-00009", "date": "2026-09-30", "notes": "", "base": 400000}], "exp": [{"date": "2026-07-05", "who": "Gestoría Ejemplo SL", "base": 5000, "vat": 1050}, {"date": "2026-08-05", "who": "Gestoría Ejemplo SL", "base": 5000, "vat": 1050}, {"date": "2026-09-05", "who": "Gestoría Ejemplo SL", "base": 5000, "vat": 1050}], "f303": [["27", "Total cuota devengada", 0], ["28", "Por cuotas soportadas en operaciones interiores corrientes: Base", 15000], ["29", "Por cuotas soportadas en operaciones interiores corrientes: Cuota", 3150], ["45", "Total a deducir", 3150], ["46", "Resultado régimen general", -3150], ["59", "Entregas intracomunitarias de bienes y servicios", 1200000], ["66", "Atribuible a la Administración del Estado", -3150], ["110", "Cuotas a compensar pendientes de periodos anteriores", 6300], ["87", "Cuotas a compensar de periodos previos pendientes para periodos posteriores", 6300], ["71", "Resultado", -3150]], "r303": -3150, "f349": [["S", "CY99999999L", 1200000]], "deadline": "2026-10-20", "carry303": 9450, "f151": [["B.02", "Ingresos íntegros (все клиенты, в т.ч. иностранные)", 3600000], ["B.03/B.04", "Gastos de personal; Gastos de aprovisionamiento de materiales y de suministros (только они)", 0], ["B.05 = F.17", "Rendimiento neto: positivo = Base liquidable general", 3600000], ["G.19", "Cuota correspondiente a la base liquidable general: 24 % до 600 000 €, 47 % сверх", 864000], ["G.33", "Retenciones e ingresos a cuenta", 0], ["G.34", "Cuotas del Impuesto sobre la Renta de no Residentes pagadas respecto de rentas incluidas en la declaración (Modelo 210)", 0], ["G.43", "Resultado de la declaración: + a ingresar / − a devolver", 864000]], "r151": 864000, "high151": 1080000, "income": 3600000, "paid210": 0, "duty": {"beckham": {"yes": [{"m": "303", "what": "IVA за квартал", "why": "У вас деятельность в Испании. 303 подаётся каждый квартал, даже если IVA нет."}, {"m": "349", "what": "Сведения об операциях с бизнесом из ЕС", "why": "В 2026 есть счета бизнесу из ЕС или услуги поставщиков из ЕС."}, {"m": "390", "what": "Годовая сводка IVA", "why": "Её подаёт каждый, кто подаёт 303 (кроме участников SII и режимов, освобождённых приказом)."}, {"m": "151", "what": "Годовая декларация режима Beckham", "why": "2026 — год режима Beckham (первый год 2025)."}, {"m": "RETA", "what": "Взнос в Seguridad Social autónomo", "why": "Вы в RETA с 2025-02-01."}], "no": [{"m": "130", "what": "Аванс IRPF: 20 % прибыли с 1 января", "why": "В режиме Beckham авансы — только удержания клиентов по правилам IRNR. Применяется ли общий 130 к деятельности в режиме, закон прямо не говорит."}, {"m": "100", "what": "Годовая декларация IRPF (Renta)", "why": "Вместо обычной Renta — Modelo 151."}, {"m": "210", "what": "Декларация IRNR нерезидента без постоянного представительства", "why": "Вы налогоплательщик IRPF, а 210 подают нерезиденты. Клиент без представительства в Испании не удерживает налог, поэтому квартального платежа закон не требует. Уплаченные добровольно 210 впишите в анкете — gestor вычтет их в 151."}, {"m": "347", "what": "Контрагенты с оборотом за год больше 3 005,06 € (бизнес из ЕС идёт в 349)", "why": "Ни с одним контрагентом — в Испании или вне ЕС — оборот не больше 3 005,06 €. Операции из 349 и с удержанием не считаются."}, {"m": "111", "what": "Удержания IRPF, которые сделали вы", "why": "Вы не платили вознаграждений, с которых надо удерживать IRPF."}, {"m": "115", "what": "Удержание 19 % с аренды помещения", "why": "В 2026 нет расходов на аренду, с которых вы удержали 19 %."}]}, "general": {"yes": [{"m": "303", "what": "IVA за квартал", "why": "У вас деятельность в Испании. 303 подаётся каждый квартал, даже если IVA нет."}, {"m": "130", "what": "Аванс IRPF: 20 % прибыли с 1 января", "why": "Общий IRPF. Освобождение (не меньше 70 % дохода за прошлый год с удержанием клиента) к вам не применяется."}, {"m": "349", "what": "Сведения об операциях с бизнесом из ЕС", "why": "В 2026 есть счета бизнесу из ЕС или услуги поставщиков из ЕС."}, {"m": "390", "what": "Годовая сводка IVA", "why": "Её подаёт каждый, кто подаёт 303 (кроме участников SII и режимов, освобождённых приказом)."}, {"m": "720", "what": "Имущество за рубежом", "why": "Только если за рубежом больше 50 000 € в одном блоке: счета, ценные бумаги или недвижимость. Этого gestor не видит."}, {"m": "100", "what": "Годовая декларация IRPF (Renta)", "why": "В 2026 у вас общий режим IRPF."}, {"m": "RETA", "what": "Взнос в Seguridad Social autónomo", "why": "Вы в RETA с 2025-02-01."}], "no": [{"m": "347", "what": "Контрагенты с оборотом за год больше 3 005,06 € (бизнес из ЕС идёт в 349)", "why": "Ни с одним контрагентом — в Испании или вне ЕС — оборот не больше 3 005,06 €. Операции из 349 и с удержанием не считаются."}, {"m": "111", "what": "Удержания IRPF, которые сделали вы", "why": "Вы не платили вознаграждений, с которых надо удерживать IRPF."}, {"m": "115", "what": "Удержание 19 % с аренды помещения", "why": "В 2026 нет расходов на аренду, с которых вы удержали 19 %."}]}}, "counts": {"clients": 1, "invoices": 9, "expenses": 18, "filings": 0}};
+const $ = id => document.getElementById(id);
+const eur = c => (c < 0 ? "−" : "") + (Math.abs(c) / 100).toLocaleString("de-DE", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " €";
+const dmy = iso => iso.slice(8, 10) + "." + iso.slice(5, 7) + "." + iso.slice(0, 4);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+const st = D.sources, nsrc = Object.values(st).reduce((a, b) => a + b, 0);
+
+$("meta").innerHTML = `Состояние на ${dmy(D.today)}. Вымышленные данные: autónomo в régimen Beckham, один клиент на Кипре, один счёт на 4.000 € каждый месяц.
+Все суммы на этой странице посчитал движок gestor по этому профилю в момент создания страницы. Ни одна сумма не вписана в страницу вручную.`;
+
+/* ---------- 02 map ---------- */
+const N = {
+  you:   {x: 20,  y: 170, t: "Вы, браузер", s: "127.0.0.1:8765", ext: true},
+  web:   {x: 210, y: 170, t: "web.py", s: `строк: ${D.lines["web.py"]}`},
+  db:    {x: 400, y: 40,  t: "main.db", s: "SQLite"},
+  tax:   {x: 400, y: 170, t: "tax.py", s: `строк: ${D.lines["tax.py"]}`},
+  src:   {x: 590, y: 170, t: "sources/*.json", s: `норм: ${nsrc}`},
+  sede:  {x: 400, y: 310, t: "sede.py", s: "файл Importar"},
+  aeat:  {x: 20,  y: 310, t: "Sede AEAT", s: "вне gestor", ext: true},
+  agent: {x: 20,  y: 40,  t: "Claude / Codex", s: "ваша подписка", ext: true},
+  mcp:   {x: 210, y: 40,  t: "mcp.py", s: `строк: ${D.lines["mcp.py"]}`},
+};
+const W = 150, H = 52;
+const E = [["you","web"],["web","db"],["web","tax"],["tax","db"],["tax","src"],["web","sede"],["sede","tax"],["sede","aeat"],
+           ["agent","mcp"],["mcp","tax"],["mcp","sede"],["agent","aeat"]];
+const INFO = {
+  you: ["Вы, браузер", "http://127.0.0.1:8765", [
+    "Обычные HTML-формы. JavaScript-фреймворков нет.",
+    "Профиль выбирается через cookie <code>entity</code>. Если cookie нет, открывается <code>main</code>.",
+    "На экране даты имеют формат dd.mm.yyyy. В базе данных они хранятся в формате ISO."]],
+  web: ["Интерфейс", "gestor/web.py", [
+    `Строк: ${D.lines["web.py"]}. 26 адресов в списке <code>ROUTES</code>.`,
+    "Строит HTML на сервере и отдаёт готовую страницу.",
+    "Отклоняет POST с другого сайта: проверяет заголовок Origin.",
+    "Сам ничего не считает. Расчёт он получает от tax.py."]],
+  db: ["Хранилище", "~/.gestor/main.db", [
+    "Один файл SQLite на профиль. 6 таблиц.",
+    "Деньги хранятся в целых центах, поэтому ошибок округления нет.",
+    `Сейчас в базе данных: счета: ${D.counts.invoices}, расходы: ${D.counts.expenses}, поданные декларации: ${D.counts.filings}, клиенты: ${D.counts.clients}.`,
+    "Резервная копия: скопировать папку <code>~/.gestor</code>."]],
+  tax: ["Движок", "gestor/tax.py", [
+    `Строк: ${D.lines["tax.py"]}. Считает 303, 349, 347, 390, 130, 100, 151, 202, 111, 115, 200, RETA и сроки.`,
+    "Только читает базу данных. Ничего не записывает.",
+    "Запускается при каждом открытии страницы. Если вы добавите счёт, на следующей странице цифры уже будут новыми.",
+    "К каждой сумме добавляет id норм для символа §."]],
+  src: ["Правовые нормы", "gestor/sources/", [
+    `Норм из BOE, AEAT и DGT: ${nsrc}. Для каждой есть оригинал на испанском, перевод и то, что она значит для вас.`,
+    `Статусы: подтверждено текстом закона: ${st.verified}, толкование: ${st.interpretation}, спорно: ${st.disputed}.`,
+    "Символ § рядом с суммой открывает карточку нормы.",
+    "Тест <code>tests.test_sources</code> проверяет, что каждый § ведёт на полную карточку."]],
+  sede: ["Файл для Sede", "gestor/sede.py", [
+    "Создаёт файл с полями фиксированной ширины для кнопки «Importar» в форме Sede.",
+    "Декларации: 303, 349, 130 и 151.",
+    "Позиции полей 303, 130 и 151 взяты из официальных дизайнов записи AEAT: <code>gestor/dr/*.json</code>.",
+    "Без NIE в профиле файл не создаётся: Sede его не приняла бы."]],
+  aeat: ["Sede AEAT", "sede.agenciatributaria.gob.es", [
+    "Это внешняя система. Она не входит в gestor.",
+    "Вы входите, загружаете файл через «Importar», нажимаете «Validar declaración» и подписываете.",
+    "gestor ничего туда не отправляет.",
+    "После подачи вы вводите в gestor Código Seguro de Verificación (CSV) из justificante подачи: «Отметить поданным»."]],
+  agent: ["Агент", "Claude Code или Codex", [
+    "Работает по вашей подписке. gestor не хранит ключи.",
+    "Видит и меняет только то, что даёт mcp.py: анкету, книги, декларации.",
+    "В Chrome агент может заполнить форму Sede, но не может её подать."]],
+  mcp: ["MCP-сервер", "gestor/mcp.py", [
+    "Протокол MCP через stdio. 17 инструментов и промпты <code>start</code> и <code>statement</code>, все профили.",
+    "Пишет анкету, клиентов, расходы, черновики счетов и отметки о подаче — после вашего «да».",
+    "Счёт не выставляет: номер присваиваете вы в интерфейсе. Файлы для Sede — в <code>~/.gestor/sede/&lt;профиль&gt;/</code>.",
+    "В <code>INSTRUCTIONS</code> запрещено нажимать «Presentar declaración» и «Firmar y enviar»."]],
+};
+const FLOWS = {
+  "Открыть обзор": [["you","web"],["web","tax"],["tax","db"],["tax","src"],
+    ["Вы открываете страницу.", "web.py просит tax.py посчитать год.", "tax.py читает счета и расходы из main.db.", "tax.py добавляет нормы §.", "web.py строит HTML и отдаёт его вам."]],
+  "Выставить счёт": [["you","web"],["web","db"],
+    ["Вы нажимаете «Выставить».", "web.py присваивает номер и фиксирует данные сторон.", "Счёт сохранён в main.db. Изменить его больше нельзя."]],
+  "Файл для Sede": [["you","web"],["web","sede"],["sede","tax"],["sede","aeat"],
+    ["Вы нажимаете «Скачать файл для Sede» на странице /taxes.", "sede.py получает casillas от tax.py.", "Вы скачиваете файл.", "Вы загружаете его в Sede и подписываете."]],
+  "Агент и Sede": [["agent","mcp"],["mcp","tax"],["mcp","sede"],["agent","aeat"],
+    ["Агент запрашивает декларацию у mcp.py.", "mcp.py получает casillas от tax.py.", "mcp.py записывает файл для Sede.", "Агент заполняет форму в Sede и нажимает «Validar declaración». Подаёте вы."]],
+};
+const svg = $("svg"), NS = "http://www.w3.org/2000/svg";
+const mk = (tag, attrs, parent = svg) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); parent.appendChild(e); return e; };
+const defs = mk("defs", {});
+const mrk = mk("marker", {id: "arr", viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: "auto-start-reverse"}, defs);
+mk("path", {d: "M0,0 L10,5 L0,10 z", fill: "#9aa79f"}, mrk);
+const mrk2 = mk("marker", {id: "arr2", viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: "auto-start-reverse"}, defs);
+mk("path", {d: "M0,0 L10,5 L0,10 z", fill: "#1b3a9e"}, mrk2);
+function clip(a, b) { // point on a's border towards b
+  const ax = a.x + W / 2, ay = a.y + H / 2, bx = b.x + W / 2, by = b.y + H / 2, dx = bx - ax, dy = by - ay;
+  const k = Math.min(Math.abs((W / 2 + 4) / (dx || 1e-9)), Math.abs((H / 2 + 4) / (dy || 1e-9)));
+  return [ax + dx * k, ay + dy * k];
+}
+const edgeEl = {};
+const ROUTE = {mcpsede: "M362,80 H380 V294 H440 V305", agentaeat: "M18,66 H8 V336 H15"}; // around boxes, not through them
+for (const [a, b] of E) {
+  const [x1, y1] = clip(N[a], N[b]), [x2, y2] = clip(N[b], N[a]);
+  edgeEl[a + b] = mk("path", {d: ROUTE[a + b] || `M${x1},${y1} L${x2},${y2}`, class: "edge", "marker-end": "url(#arr)"});
+}
+const nodeEl = {};
+for (const k in N) {
+  const n = N[k], g = mk("g", {class: "node" + (n.ext ? " ext" : ""), tabindex: 0});
+  mk("rect", {x: n.x, y: n.y, width: W, height: H, rx: 2}, g);
+  mk("text", {x: n.x + 12, y: n.y + 22, class: "t"}, g).textContent = n.t;
+  mk("text", {x: n.x + 12, y: n.y + 40, class: "s"}, g).textContent = n.s;
+  g.addEventListener("click", () => showNode(k));
+  g.addEventListener("keydown", e => { if (e.key === "Enter") showNode(k); });
+  nodeEl[k] = g;
+}
+function clearMap() {
+  Object.values(nodeEl).forEach(g => g.classList.remove("on"));
+  Object.values(edgeEl).forEach(l => { l.classList.remove("on"); l.setAttribute("marker-end", "url(#arr)"); });
+  document.querySelectorAll("#flows button").forEach(b => b.setAttribute("aria-pressed", "false"));
+}
+function showNode(k) {
+  clearMap(); nodeEl[k].classList.add("on");
+  const [t, f, items] = INFO[k];
+  $("panel").innerHTML = `<h3>${t}</h3><div class="file">${f}</div><ul>${items.map(i => `<li>${i}</li>`).join("")}</ul>`;
+}
+for (const name in FLOWS) {
+  const b = document.createElement("button"); b.textContent = name; b.setAttribute("aria-pressed", "false");
+  b.onclick = () => {
+    clearMap(); b.setAttribute("aria-pressed", "true");
+    const steps = FLOWS[name];
+    for (const [a, c] of steps.slice(0, -1)) {
+      const l = edgeEl[a + c]; l.classList.add("on"); l.setAttribute("marker-end", "url(#arr2)");
+      nodeEl[a].classList.add("on"); nodeEl[c].classList.add("on");
+    }
+    $("panel").innerHTML = `<h3>${name}</h3><ol class="flowsteps">${steps.at(-1).map(s => `<li>${s}</li>`).join("")}</ol>`;
+  };
+  $("flows").appendChild(b);
+}
+showNode("tax");
+
+/* ---------- 03 stepper ---------- */
+const last = D.inv.at(-1), q3total = D.inv.reduce((a, i) => a + i.base, 0);
+$("steplead").textContent = `Пример: счёт ${last.no} от ${dmy(last.date)} на ${eur(last.base)}. Так через gestor проходит любой счёт.`;
+const tax24 = Math.round(last.base * 0.24);
+const STEPS = [
+  ["Черновик", "черновик", "doubt", `Вы заполняете форму «Новый счёт». В базе данных появляется строка, но без номера.`,
+   `invoices: number = <em>NULL</em>, issue_date = ${last.date}\ninvoice_lines: «${esc(last.notes || "services")}», ${eur(last.base)}`,
+   "Черновик можно изменить и удалить. Он не входит в налоговые расчёты."],
+  ["Выставить", "выставлен", "", `Вы нажимаете «Выставить». gestor берёт следующий номер серии по шаблону FACT-{YYYY}-{NNNNN}.`,
+   `invoices: number = <em>${last.no.split("-").at(-1)}</em> → ${last.no}\nparties = <em>JSON с вашими данными и данными клиента на этот день</em>`,
+   "Данные сторон зафиксированы. Если вы потом смените адрес, старый счёт не изменится. Выставленный счёт исправляют только через factura rectificativa."],
+  ["Квартал", "3T", "", `Движок (<code>tax.sales()</code>) относит счёт к кварталу по дате операции.`,
+   `${dmy(last.date)} → месяц ${+last.date.slice(5, 7)} → <em>3T 2026</em>`,
+   "Дата оплаты не влияет на квартал."],
+  ["IVA: 303 и 349", "eu_b2b", "", `Клиент — компания с Кипра с VAT ID. Тип счёта <code>eu_b2b</code>: IVA 0 %, inversión del sujeto pasivo.`,
+   `303, 3T: casilla 59 += <em>${eur(last.base)}</em>, IVA = 0\n349, 3T: ${D.f349[0][1]}, clave S += <em>${eur(last.base)}</em>`,
+   "IVA по этому счёту платит клиент на Кипре. Вы только указываете счёт в 349."],
+  ["Beckham: 151", "151", "", `Régimen Beckham: доходы облагаются по ставке 24 % до 600.000 €. Расходы и RETA не уменьшают базу.`,
+   `151, 2026: B.02 доходы += <em>${eur(last.base)}</em>\nG.19 cuota += 24 % = <em>${eur(tax24)}</em>`,
+   "gestor считает налог за год в 151. Добровольные платежи по 210 вычитаются в G.34."],
+  ["Подача", "вы", "late", `На странице /taxes вы видите casillas и скачиваете файл. Потом вы загружаете его в Sede и подписываете.`,
+   `Срок 303 и 349 за 3T: <em>${dmy(D.deadline)}</em>`,
+   "gestor ничего не отправляет сам. Эту границу он не пересекает."],
+  ["Отметка", "подано", "", `После подачи вы нажимаете «Отметить поданным» и вводите сумму и CSV из justificante подачи.`,
+   `filings: modelo 303, 2026, 3T, filed_on, amount, <em>CSV</em>`,
+   "Обзор переводит сумму из «≈ к уплате» в «оплачено». Если потом вы добавите счёт в этот квартал, gestor покажет разницу с поданной суммой."],
+];
+let cur = 0;
+$("steplist").innerHTML = STEPS.map((s, i) => `<li data-i="${i}">${s[0]}</li>`).join("");
+$("steplist").onclick = e => { const li = e.target.closest("li"); if (li) go(+li.dataset.i); };
+$("prev").onclick = () => go(Math.max(0, cur - 1));
+$("next").onclick = () => go(Math.min(STEPS.length - 1, cur + 1));
+function go(i) {
+  cur = i;
+  document.querySelectorAll("#steplist li").forEach((li, j) => { li.className = j === i ? "on" : j < i ? "done" : ""; });
+  const [t, stamp, cls, what, rec, why] = STEPS[i];
+  $("stepcard").innerHTML = `<span class="stamp ${cls}">${stamp}</span><h3>${t}</h3><p>${what}</p><div class="rec">${rec}</div><p class="muted">${why}</p>`;
+  $("prev").disabled = i === 0; $("next").disabled = i === STEPS.length - 1;
+}
+go(0);
+
+/* ---------- 04 Q3 ---------- */
+$("r303h").textContent = eur(D.r303);
+$("tinv").innerHTML = "<tr><th>Номер</th><th>Дата</th><th style='text-align:right'>База</th></tr>" +
+  D.inv.map(i => `<tr data-src="inv"><td>${i.no}</td><td>${dmy(i.date)}</td><td class="num">${eur(i.base)}</td></tr>`).join("") +
+  `<tr class="total" data-src="inv"><td>Итого</td><td></td><td class="num">${eur(q3total)}</td></tr>`;
+$("texp").innerHTML = "<tr><th>Дата</th><th>Поставщик</th><th style='text-align:right'>База</th><th style='text-align:right'>IVA 21 %</th></tr>" +
+  D.exp.map(e => `<tr data-src="exp"><td>${dmy(e.date)}</td><td>${esc(e.who)}</td><td class="num">${eur(e.base)}</td><td class="num">${eur(e.vat)}</td></tr>`).join("");
+const FEED = {"59": ["inv"], "28": ["exp"], "29": ["exp"], "45": ["exp"], "46": ["exp"], "66": ["exp"], "71": ["exp"]};
+$("t303").innerHTML = "<tr><th>Casilla</th><th>Что это</th><th style='text-align:right'>Сумма</th></tr>" +
+  D.f303.map(([b, l, v]) => `<tr data-box="${b}" class="${b === "71" ? "total" : ""}"><td class="box">${b}</td><td>${esc(l)}</td><td class="num">${eur(v)}</td></tr>`).join("");
+$("t349").innerHTML = "<tr><th>Clave</th><th>VAT ID</th><th style='text-align:right'>Сумма</th></tr>" +
+  D.f349.map(([b, l, v]) => `<tr data-box="349"><td class="box">${b}</td><td>${esc(l)}</td><td class="num">${eur(v)}</td></tr>`).join("");
+FEED["349"] = ["inv"];
+document.querySelectorAll("[data-box]").forEach(tr => {
+  tr.onmouseenter = () => { tr.classList.add("hot"); (FEED[tr.dataset.box] || []).forEach(s => document.querySelectorAll(`[data-src=${s}]`).forEach(r => r.classList.add("hot"))); };
+  tr.onmouseleave = () => document.querySelectorAll(".hot").forEach(r => r.classList.remove("hot"));
+});
+const expVat = D.exp.reduce((a, e) => a + e.vat, 0);
+$("q3note").innerHTML = `Результат: продажи дают IVA 0, а расходы на gestoría дают IVA к вычету ${eur(expVat)}. Поэтому результат равен ${eur(D.r303)}. Это не платёж, а сумма a compensar в следующих кварталах.
+Casilla 87 показывает только суммы a compensar из прошлых периодов, ${eur(D.f303.find(b => b[0] === "87")[2])}. Вместе с новыми ${eur(-D.r303)} в 4T перейдут ${eur(D.carry303)}.
+Срок подачи: <b>${dmy(D.deadline)}</b>.`;
+
+/* ---------- 05 slider ---------- */
+const b02 = D.f151.find(b => b[0] === "B.02")[2], g34 = D.f151.find(b => b[0] === "G.34")[2];
+function calc() {
+  const x = +$("x").value * 100;
+  $("xval").textContent = "+ " + eur(x);
+  $("o303").textContent = eur(D.r303);
+  $("o349").textContent = eur(q3total + x);
+  const r = Math.round((b02 + x) * 0.24) - g34; // G.19 24 % (below 600.000 €) minus G.34
+  $("o151").textContent = eur(r);
+  $("d151").textContent = x ? `+ ${eur(Math.round(x * 0.24))} = 24 % от нового счёта.` : `24 % от ${eur(b02)} минус 210 ${eur(g34)}.`;
+}
+$("x").oninput = calc; calc();
+$("calcnote").innerHTML = `Проверка: при ползунке на нуле 151 = ${eur(D.r151)}, как в движке. Это нижняя граница по счетам на сегодня.
+Верхняя граница в обзоре — ${eur(D.high151)}: для неё gestor добавляет 4T как средний квартал прошлого года.`;
+
+/* ---------- 06 regime ---------- */
+function duty(reg) {
+  document.querySelectorAll("[data-reg]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.reg === reg)));
+  const d = D.duty[reg];
+  $("tduty").innerHTML = "<tr><th>Modelo</th><th>Что это</th><th>Почему, по вашим данным</th></tr>" +
+    d.yes.map(r => `<tr><td>${r.m}</td><td>${esc(r.what)}</td><td>${esc(r.why)}</td></tr>`).join("") +
+    `<tr><th colspan="3">Не подаёте</th></tr>` +
+    d.no.map(r => `<tr class="gone"><td>${r.m}</td><td>${esc(r.what)}</td><td>${esc(r.why)}</td></tr>`).join("");
+}
+document.querySelectorAll("[data-reg]").forEach(b => b.onclick = () => duty(b.dataset.reg)); duty("beckham");
+
+/* ---------- colophon ---------- */
+$("colophon").innerHTML = `Откуда берутся цифры. Страницу построил одноразовый скрипт. Он вызвал функции движка
+<code>tax.forms()</code>, <code>tax.sales()</code>, <code>tax.duties()</code> и <code>tax.payments()</code> с вымышленным профилем.
+Код: <code>gestor/</code>. Описание: <code>README.ru.md</code>; порядок создания профиля: <code>docs/ru/onboarding.md</code>.
+Страница — это презентация. Источник истины — код, база данных и нормы в <code>gestor/sources/</code>.`;
+</script>
+</body>
+</html>

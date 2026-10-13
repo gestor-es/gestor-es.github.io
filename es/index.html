@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gestor: app fiscal gratuita y local para autónomos y SL en España</title>
+<meta name="description" content="Gestor gratuito y de código abierto para autónomos y SL en España. Calcula IVA, IRPF, Beckham, RETA y los modelos 303, 130, 349, 390, 111, 115 y 202 con la norma detrás de cada importe. Funciona en local; lo instala su agente de IA.">
+<link rel="canonical" href="https://gestor-es.github.io/es/">
+<link rel="alternate" hreflang="en" href="https://gestor-es.github.io/">
+<link rel="alternate" hreflang="es" href="https://gestor-es.github.io/es/">
+<link rel="alternate" hreflang="ru" href="https://gestor-es.github.io/ru/">
+<link rel="alternate" hreflang="x-default" href="https://gestor-es.github.io/">
+<link rel="icon" type="image/png" href="/favicon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="gestor">
+<meta property="og:locale" content="es_ES">
+<meta property="og:url" content="https://gestor-es.github.io/es/">
+<meta property="og:title" content="gestor: app fiscal gratuita y local para autónomos y SL en España">
+<meta property="og:description" content="Calcula sus declaraciones y explica cada importe con la norma. La presentación la hace usted. Código abierto, MIT.">
+<meta property="og:image" content="https://gestor-es.github.io/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="gestor: IVA, IRPF, Beckham, RETA para autónomos y SL en España">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preload" href="/fonts/font-ptsans-400-latin.woff2" as="font" type="font/woff2" crossorigin>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://gestor-es.github.io/#app",
+      "name": "gestor",
+      "url": "https://gestor-es.github.io/es/",
+      "image": "https://gestor-es.github.io/og.png",
+      "description": "Gestor local para autónomos y SL en España: facturas, gastos, IVA/IRPF/Beckham/SL, RETA y calendario de presentaciones. Calcula las declaraciones y explica cada importe con la norma; la presentación la hace el usuario.",
+      "applicationCategory": "FinanceApplication",
+      "operatingSystem": "Cualquier sistema con Python 3.12+",
+      "softwareVersion": "alpha",
+      "inLanguage": "es",
+      "isAccessibleForFree": true,
+      "license": "https://opensource.org/licenses/MIT",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+      "sameAs": "https://github.com/gestor-es/gestor-es",
+      "downloadUrl": "https://github.com/gestor-es/gestor-es"
+    },
+    {
+      "@type": "FAQPage",
+      "inLanguage": "es",
+      "mainEntity": [
+        { "@type": "Question", "name": "¿gestor presenta mis declaraciones?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. gestor calcula las declaraciones y prepara un fichero para importar en la Sede de la AEAT. Usted revisa las cifras y firma en la Sede." } },
+        { "@type": "Question", "name": "¿Dónde se guardan mis datos?",
+          "acceptedAnswer": { "@type": "Answer", "text": "En su ordenador, en un fichero SQLite por perfil en ~/.gestor." } },
+        { "@type": "Question", "name": "¿Para quién es gestor?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Para un autónomo en España en IRPF general o en régimen Beckham, y para una Sociedad Limitada de un solo socio con ingresos por servicios." } },
+        { "@type": "Question", "name": "¿Qué agentes de IA funcionan con gestor?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Claude Code y Codex, a través del servidor MCP de gestor. El agente lee sus libros y declaraciones, guarda borradores después de su «sí» explícito y puede rellenar el formulario de la Sede de la AEAT en su navegador." } },
+        { "@type": "Question", "name": "¿Puedo usar gestor sin un agente de IA?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Sí. Clone el repositorio y ejecute python3 -m gestor. La interfaz se abre en http://127.0.0.1:8765." } },
+        { "@type": "Question", "name": "¿gestor sustituye a una gestoría?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. Calcula y explica las declaraciones de un autónomo o de una SL de un solo socio, y usted las presenta. Cada fuente jurídica está marcada como explícita en el texto, interpretación o discutida. Para los puntos discutidos y la contabilidad completa de una SL, consulte a un profesional." } },
+        { "@type": "Question", "name": "¿gestor es asesoramiento fiscal?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. Calcula y explica con fuentes del BOE, la AEAT y la TGSS. Compruebe cada cifra antes de firmar." } },
+        { "@type": "Question", "name": "¿Cuánto cuesta gestor?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Nada. Es de código abierto con licencia MIT." } }
+      ]
+    }
+  ]
+}
+</script>
+<link rel="stylesheet" href="/fonts.css">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="wrap">
+<header class="appbar">
+  <a class="brand" href="/es/">gestor</a>
+  <nav aria-label="Secciones">
+    <a href="#start">Agente</a>
+    <a href="#modelos">Modelos</a>
+    <a href="#how">Cómo funciona</a>
+    <a href="#faq">Preguntas</a>
+  </nav>
+  <nav class="langs" aria-label="Idioma"><a href="/" lang="en" hreflang="en">EN</a><a href="/es/" lang="es" hreflang="es" aria-current="page">ES</a><a href="/ru/" lang="ru" hreflang="ru">RU</a></nav>
+  <a class="gh" href="https://github.com/gestor-es/gestor-es">GitHub</a>
+</header>
+<main>
+  <div class="hero">
+    <div class="seal" aria-hidden="true"></div>
+    <p class="kicker">Código abierto · para autónomos y SL en España</p>
+    <h1>Un gestor local para autónomos y SL en España</h1>
+    <p class="lead">Facturas, gastos, IVA, IRPF, Beckham, RETA y el calendario de presentaciones. gestor calcula sus declaraciones y explica cada importe con la norma. La presentación la hace usted.</p>
+    <p class="stamps">
+      <span class="stamp late">Alfa · no es asesoramiento fiscal</span>
+      <span class="stamp ok">MIT · gratis</span>
+      <span class="stamp wait">Funciona en su ordenador</span>
+    </p>
+    <div class="cta">
+      <a class="btn primary" href="#start">Instalar con su agente</a>
+      <a class="btn" href="https://github.com/gestor-es/gestor-es">Código en GitHub</a>
+    </div>
+  </div>
+
+  <section id="start">
+    <div class="junction" aria-hidden="true"><span>agente</span></div>
+    <h2>Empiece con su agente</h2>
+    <p class="sub">Pegue esto en Claude Code o Codex. El agente instala gestor y le guía en la primera sesión, una pregunta cada vez. Nunca presenta, firma ni paga.</p>
+    <!-- same text as README.es.md "Empiece con su agente" in gestor-es/gestor-es, reflowed one step per line; keep in sync -->
+    <div class="slip">
+      <div class="slip-head"><b>Para Claude Code o Codex</b><button class="btn primary" type="button" id="copy" data-done="Copiado">Copiar</button></div>
+<div class="prompt-text" id="prompt">
+<p>Instala gestor desde <span class="nw">https://github.com/gestor-es/gestor-es</span> y guíame en la primera sesión. Háblame en español.</p>
+<p>1. Clónalo en <span class="nw">~/gestor-es</span>. gestor necesita Python 3.12+: si python3 es más antiguo, ayúdame a instalar uno nuevo y úsalo abajo.</p>
+<p>2. En <span class="nw">~/gestor-es</span> arranca la interfaz para que siga funcionando cuando salgas:</p>
+<p class="in">nohup python3 -m gestor &gt; gestor.log 2&gt;&amp;1 &amp;</p>
+<p class="in">Luego dame el enlace http://127.0.0.1:8765.</p>
+<p>3. Conecta el servidor MCP de gestor para tu programa con el comando de la sección del README «Ayuda en la Sede desde Claude Code o Codex», ejecutado desde <span class="nw">~/gestor-es</span>.</p>
+<p>4. Dime que te reinicie en <span class="nw">~/gestor-es</span> para que se cargue el servidor (<span class="nw">`claude --continue`</span> o <span class="nw">`codex resume --last`</span>) y que escriba «continúa». Después sigue las instrucciones First session del servidor gestor.</p>
+<p>No presentes, firmes ni pagues nada. No me pidas el PIN de Cl@ve, contraseñas ni la clave del certificado.</p>
+</div>
+    </div>
+    <p>Sesiones siguientes: en Claude Code escriba <code>/mcp__gestor__start</code>; en Codex escriba «empieza con gestor». El agente indica el plazo más cercano y qué hace falta para él.</p>
+    <h3>Sin agente</h3>
+<pre class="plain"><code>git clone https://github.com/gestor-es/gestor-es ~/gestor-es
+cd ~/gestor-es
+python3 -m gestor        # http://127.0.0.1:8765, datos en ~/.gestor</code></pre>
+  </section>
+
+  <section id="modelos">
+    <div class="junction" aria-hidden="true"><span>303</span></div>
+    <h2>Qué calcula</h2>
+    <p class="sub">Cada declaración que encuentra en el año un autónomo o una SL de un solo socio, con su plazo habitual. gestor traslada los plazos que caen en fin de semana o festivo nacional.</p>
+    <ul class="index">
+      <li><span class="entry"><b>303</b>IVA<span>20.04 · 20.07 · 20.10 · 30.01</span></span><small>Declaración trimestral de IVA</small></li>
+      <li><span class="entry"><b>130</b>Pago fraccionado IRPF<span>20.04 · 20.07 · 20.10 · 30.01</span></span><small>Autónomo en IRPF general</small></li>
+      <li><span class="entry"><b>111</b>Retenciones<span>20.04 · 20.07 · 20.10 · 20.01</span></span><small>Practicadas a profesionales y en nóminas que usted paga</small></li>
+      <li><span class="entry"><b>115</b>Retenciones de alquiler<span>20.04 · 20.07 · 20.10 · 20.01</span></span><small>Alquiler de oficina con retención</small></li>
+      <li><span class="entry"><b>349</b>Operaciones intracomunitarias<span>20.04 · 20.07 · 20.10 · 30.01</span></span><small>Solo en trimestres con clientes o proveedores de la UE</small></li>
+      <li><span class="entry"><b>202</b>Pago fraccionado IS<span>20.04 · 20.10 · 20.12</span></span><small>Sociedad Limitada</small></li>
+      <li><span class="entry"><b>390</b>Resumen anual de IVA<span>30.01</span></span><small>Resumen de los 303 del año</small></li>
+      <li><span class="entry"><b>347</b>Operaciones con terceros<span>febrero</span></span><small>Más de 3 005,06 € por contraparte</small></li>
+      <li><span class="entry"><b>100</b>Renta<span>abril–30.06</span></span><small>IRPF anual, estimación</small></li>
+      <li><span class="entry"><b>151</b>Beckham<span>abril–30.06</span></span><small>Régimen especial del art. 93, estimación</small></li>
+      <li><span class="entry"><b>200</b>Impuesto sobre Sociedades<span>25.07</span></span><small>SL, estimación</small></li>
+      <li><span class="entry"><b>RETA</b>Seguridad Social<span>mensual</span></span><small>Cuota de autónomos</small></li>
+    </ul>
+    <p class="calendar-note">Escalas autonómicas del IRPF: Comunitat Valenciana, Asturias, Madrid, Cataluña y Andalucía. Las demás comunidades usan la escala estatal como aproximación, y la pantalla lo indica.</p>
+  </section>
+
+  <section id="how">
+    <div class="junction" aria-hidden="true"><span>§ ley</span></div>
+    <h2>Cómo funciona</h2>
+    <div class="boxes">
+      <span class="box"><sup>01</sup>local</span>
+      <p>Funciona en su ordenador. Python 3.12+, solo la biblioteca estándar, un fichero SQLite por perfil en <code>~/.gestor</code>.</p>
+      <span class="box"><sup>02</sup>§</span>
+      <p>Cada importe lleva una marca § que abre su fuente: la cita literal del BOE, la AEAT o la DGT y qué significa para usted.</p>
+      <span class="box"><sup>03</sup>MCP</span>
+      <p>Un servidor MCP permite a Claude Code o Codex leer sus libros y declaraciones. Solo guarda borradores después de su «sí» explícito.</p>
+      <span class="box"><sup>04</sup>Validar</span>
+      <p>En la Sede de la AEAT el agente abre el formulario, importa el fichero o escribe las casillas y pulsa «Validar». No pulsa «Presentar». Firma usted.</p>
+      <span class="box"><sup>05</sup>EN · ES · RU</span>
+      <p>Interfaz, fuentes jurídicas, base de conocimiento y documentación en inglés, español y ruso.</p>
+    </div>
+    <p class="sub">Véalo con un perfil ficticio: las partes de gestor, el recorrido de una factura y un trimestre resuelto. <a href="/es/explainer/">Cómo funciona gestor</a></p>
+    <div class="next"><b>Aún no cubre</b>Importación bancaria, contabilidad completa de la SL (libro diario, cuentas anuales), Verifactu. Los ficheros para «Importar» aún no se han validado en la Sede real.</div>
+  </section>
+
+  <section id="faq">
+    <div class="junction" aria-hidden="true"><span>dudas</span></div>
+    <h2>Preguntas</h2>
+    <dl>
+      <dt>¿gestor presenta mis declaraciones?</dt>
+      <dd>No. gestor calcula las declaraciones y prepara un fichero para importar en la Sede de la AEAT. Usted revisa las cifras y firma en la Sede.</dd>
+      <dt>¿Dónde se guardan mis datos?</dt>
+      <dd>En su ordenador, en un fichero SQLite por perfil en <code>~/.gestor</code>.</dd>
+      <dt>¿Para quién es gestor?</dt>
+      <dd>Para un autónomo en España en IRPF general o en régimen Beckham, y para una Sociedad Limitada de un solo socio con ingresos por servicios.</dd>
+      <dt>¿Qué agentes de IA funcionan con gestor?</dt>
+      <dd>Claude Code y Codex, a través del servidor MCP de gestor. El agente lee sus libros y declaraciones, guarda borradores después de su «sí» explícito y puede rellenar el formulario de la Sede de la AEAT en su navegador.</dd>
+      <dt>¿Puedo usar gestor sin un agente de IA?</dt>
+      <dd>Sí. Clone el repositorio y ejecute <code>python3 -m gestor</code>. La interfaz se abre en http://127.0.0.1:8765.</dd>
+      <dt>¿gestor sustituye a una gestoría?</dt>
+      <dd>No. Calcula y explica las declaraciones de un autónomo o de una SL de un solo socio, y usted las presenta. Cada fuente jurídica está marcada como explícita en el texto, interpretación o discutida. Para los puntos discutidos y la contabilidad completa de una SL, consulte a un profesional.</dd>
+      <dt>¿gestor es asesoramiento fiscal?</dt>
+      <dd>No. Calcula y explica con fuentes del BOE, la AEAT y la TGSS. Compruebe cada cifra antes de firmar.</dd>
+      <dt>¿Cuánto cuesta gestor?</dt>
+      <dd>Nada. Es de código abierto con licencia MIT.</dd>
+    </dl>
+    <div class="foot">
+      <span>gestor calcula; la presentación la hace usted en la Sede de la AEAT. No es asesoramiento fiscal.</span>
+      <span><a href="https://github.com/gestor-es/gestor-es">github.com/gestor-es/gestor-es</a> · MIT · Tipografías PT Sans, PT Mono, Prata (<a href="/fonts/OFL.txt">OFL</a>)</span>
+    </div>
+  </section>
+</main>
+</div>
+<footer class="colophon wrap" aria-hidden="true"><div class="giant">gestor</div><img src="/img/papel-sellado.jpg" alt="" width="800" height="368"></footer>
+<script>
+document.getElementById("copy").onclick = async (e) => {
+  const b = e.target, label = b.textContent;
+  const lines = [...document.querySelectorAll("#prompt p")].map((p) => (p.classList.contains("in") ? "   " : "") + p.textContent);
+  await navigator.clipboard.writeText(lines.join("\n"));
+  b.textContent = b.dataset.done;
+  setTimeout(() => (b.textContent = label), 1500);
+};
+</script>
+</body>
+</html>
