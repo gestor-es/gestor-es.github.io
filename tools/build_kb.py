@@ -126,7 +126,7 @@ def shell(lang, slug, title, desc, body, ld) -> str:
 <meta property="og:url" content="{url}">
 <meta property="og:title" content="{html.escape(title)}">
 <meta property="og:description" content="{html.escape(desc)}">
-<meta property="og:image" content="{SITE}/og.png">
+<meta property="og:image" content="{SITE}/og.png?v=2">
 <meta name="twitter:card" content="summary_large_image">
 <script type="application/ld+json">
 {json.dumps(ld, ensure_ascii=False, indent=1)}
