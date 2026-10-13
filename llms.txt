@@ -1,0 +1,22 @@
+# gestor
+
+> Free, open-source (MIT) local gestor for autónomos and one-person SLs in Spain. Computes IVA, IRPF, Beckham, RETA and Modelos 303, 390, 349, 347, 130, 100, 151, 111, 115, 202, 200, and explains every amount with the law (BOE, AEAT, DGT, TGSS). Runs locally on Python 3.12+ with no dependencies. It files nothing: the user signs in the AEAT Sede. Alpha, not tax advice.
+
+Install through an AI agent: paste the prompt from the README section "Start with your agent" into Claude Code or Codex. gestor ships an MCP server for both.
+
+## Start here
+- [README](https://raw.githubusercontent.com/gestor-es/gestor-es/main/README.md): what gestor covers, install prompt, MCP setup
+- [Use cases](https://raw.githubusercontent.com/gestor-es/gestor-es/main/docs/en/use-cases.md): what the service does and does not do, per profile
+- [Onboarding](https://raw.githubusercontent.com/gestor-es/gestor-es/main/docs/en/onboarding.md): documents to upload and questions for the first session
+
+## Knowledge base (sources quoted verbatim; Spanish originals in kb/ are the source of truth)
+- [IVA and invoicing](https://raw.githubusercontent.com/gestor-es/gestor-es/main/kb/en/iva-facturacion.md)
+- [IRPF for autónomos](https://raw.githubusercontent.com/gestor-es/gestor-es/main/kb/en/irpf-autonomo.md)
+- [Beckham regime](https://raw.githubusercontent.com/gestor-es/gestor-es/main/kb/en/beckham.md)
+- [RETA](https://raw.githubusercontent.com/gestor-es/gestor-es/main/kb/en/reta.md)
+- [Sociedad Limitada](https://raw.githubusercontent.com/gestor-es/gestor-es/main/kb/en/sociedad-limitada.md)
+- [Filing calendar](https://raw.githubusercontent.com/gestor-es/gestor-es/main/kb/en/calendario-presentacion.md)
+
+## Optional
+- [Repository](https://github.com/gestor-es/gestor-es): source, issues, license
+- [Visas and residence](https://raw.githubusercontent.com/gestor-es/gestor-es/main/kb/en/visados.md)

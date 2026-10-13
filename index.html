@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gestor — local tax assistant for autónomos and SLs in Spain</title>
+<meta name="description" content="Free, open-source gestor for autónomos and SLs in Spain. Computes IVA, IRPF, Beckham, RETA and Modelos 303, 130, 349, 390, 111, 115, 202 with the law behind every amount. Runs locally; your AI agent installs it.">
+<link rel="canonical" href="https://gestor-es.github.io/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://gestor-es.github.io/">
+<meta property="og:title" content="gestor — local tax assistant for autónomos and SLs in Spain">
+<meta property="og:description" content="Computes your Spanish returns and explains every amount with the law. You file them yourself. Open source, MIT.">
+<meta name="twitter:card" content="summary">
+<link rel="preload" href="fonts/font-ptsans-400-latin.woff2" as="font" type="font/woff2" crossorigin>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "name": "gestor",
+      "url": "https://gestor-es.github.io/",
+      "description": "Local gestor for autónomos and SLs in Spain: invoices, expenses, IVA/IRPF/Beckham/SL, RETA and a filing calendar. Computes returns and explains every amount with the law; the user files them.",
+      "applicationCategory": "FinanceApplication",
+      "operatingSystem": "Any OS with Python 3.12+",
+      "softwareVersion": "alpha",
+      "inLanguage": ["en", "es", "ru"],
+      "license": "https://opensource.org/licenses/MIT",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+      "sameAs": "https://github.com/gestor-es/gestor-es",
+      "downloadUrl": "https://github.com/gestor-es/gestor-es"
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "Does gestor file my tax returns?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. gestor computes the returns and prepares a file for the AEAT Sede import. You check the figures and sign in the Sede yourself. The agent never presses Presentar or Firmar y enviar." } },
+        { "@type": "Question", "name": "Where is my data stored?",
+          "acceptedAnswer": { "@type": "Answer", "text": "On your computer, in one SQLite file per profile in ~/.gestor. gestor is a local Python program with no third-party dependencies." } },
+        { "@type": "Question", "name": "Who is gestor for?",
+          "acceptedAnswer": { "@type": "Answer", "text": "An autónomo in Spain under the general IRPF or the Beckham regime, and a one-person Sociedad Limitada with service income." } },
+        { "@type": "Question", "name": "Which AI agents work with gestor?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Claude Code and Codex. gestor ships an MCP server; the agent reads your books and returns, saves drafts after your explicit yes, and can fill the form in the AEAT Sede through your browser." } },
+        { "@type": "Question", "name": "Is gestor tax advice?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. gestor is alpha software. It calculates and explains with sources from BOE, AEAT and TGSS. Check every figure before you sign." } },
+        { "@type": "Question", "name": "How much does gestor cost?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Nothing. gestor is open source under the MIT license." } }
+      ]
+    }
+  ]
+}
+</script>
+<style>
+@font-face { font-family: "PT Sans"; font-weight: 400; font-display: swap; src: url(fonts/font-ptsans-400-latin.woff2) format("woff2"); }
+@font-face { font-family: "PT Sans"; font-weight: 700; font-display: swap; src: url(fonts/font-ptsans-700-latin.woff2) format("woff2"); }
+@font-face { font-family: "PT Mono"; font-weight: 400; font-display: swap; src: url(fonts/font-ptmono-400-latin.woff2) format("woff2"); }
+@font-face { font-family: "Prata"; font-weight: 400; font-display: swap; src: url(fonts/font-prata-400-latin.woff2) format("woff2"); }
+/* tokens and pieces (junction, colophon, stamp, box, slip, index leaders) from gestor/static/style.css, variant «Бланк modelo» */
+:root {
+  --desk: #d5d9d6; --paper: #fff; --print: #24302a; --print-2: #4a5a51; --rule: #9aa79f; --band: #e4ebe6;
+  --pen: #1b3a9e; --pen-soft: #eef1fb; --stamp-ok: #4b3a9a; --stamp-late: #b0261c;
+  --mono: "PT Mono", ui-monospace, monospace; --sans: "PT Sans", system-ui, sans-serif; --display: "Prata", Georgia, serif;
+  --pad: 56px;
+}
+* { box-sizing: border-box; }
+html { background: var(--desk); scroll-behavior: smooth; }
+body { margin: 0; color: var(--print); font: 17px/1.5 var(--sans); font-variant-numeric: tabular-nums; }
+::selection { background: var(--pen); color: #fff; }
+a { color: var(--pen); text-underline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--pen); outline-offset: 2px; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 18px; }
+
+/* app bar */
+.appbar { display: flex; align-items: baseline; gap: 30px; padding: 18px 4px 14px; }
+.brand { font: 400 28px/1 var(--display); letter-spacing: -.01em; color: var(--print); text-decoration: none; }
+.appbar nav { display: flex; flex-wrap: wrap; gap: 6px 22px; flex: 1; }
+.appbar nav a { color: var(--print-2); text-decoration: none; padding-bottom: 3px; border-bottom: 2px solid transparent; }
+.appbar nav a:hover { color: var(--print); border-color: var(--print); }
+.appbar .gh { margin-left: auto; color: var(--pen); text-decoration: none; }
+
+/* the sheet */
+main { position: relative; overflow: hidden; padding: 52px var(--pad) 32px; background: var(--paper);
+  box-shadow: 0 1px 2px rgba(20,30,25,.18), 0 6px 18px -10px rgba(20,30,25,.25); }
+h1 { margin: 0 0 18px; max-width: 9.6em; font: 400 clamp(36px, 6vw, 66px)/1.04 var(--display); letter-spacing: -.015em; }
+h2 { margin: 14px 0 12px; font: 400 32px/1.15 var(--display); }
+.kicker { margin: 0 0 14px; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--print-2); }
+.lead { max-width: 36em; margin: 0 0 20px; font-size: 20px; line-height: 1.45; }
+.sub { max-width: 44em; margin: 0 0 18px; color: var(--print-2); }
+
+/* hero: the coat-of-arms seal from the papel sellado, struck over the corner of the sheet */
+.hero { position: relative; padding-bottom: 8px; }
+.seal { position: absolute; top: -18px; right: -8px; width: 300px; aspect-ratio: 1; border-radius: 50%; pointer-events: none;
+  background: url(img/papel-sellado.jpg) no-repeat; background-size: 1132px auto; background-position: -40px -57px;
+  filter: grayscale(1) contrast(1.4); mix-blend-mode: multiply; opacity: .85; transform: rotate(-14deg); }
+.hero .stamps { display: flex; flex-wrap: wrap; gap: 12px 16px; margin: 0 0 28px; }
+.stamp { display: inline-block; padding: 4px 10px 3px; border: 1.5px solid currentColor; font: 700 13px/1.3 var(--sans);
+  letter-spacing: .08em; text-transform: uppercase; transform: rotate(-1.5deg); white-space: nowrap; }
+.stamp.late { color: var(--stamp-late); transform: rotate(-3deg); }
+.stamp.ok { color: var(--stamp-ok); transform: rotate(1deg); }
+.stamp.wait { color: var(--print-2); border-style: dashed; transform: none; }
+.cta { display: flex; flex-wrap: wrap; gap: 12px; }
+.btn { display: inline-flex; align-items: center; height: 44px; padding: 0 20px; border: 1px solid var(--print); background: var(--paper);
+  color: var(--print); font: 700 16px var(--sans); text-decoration: none; cursor: pointer; white-space: nowrap; }
+.btn:hover { background: var(--band); }
+.btn.primary { background: var(--pen); border-color: var(--pen); color: #fff; }
+.btn.primary:hover { background: #142c7a; }
+
+/* oversized word standing on the seam between two blocks (decoration, aria-hidden) */
+.junction { margin: 46px calc(-1 * var(--pad)) 0; height: .73em; overflow: hidden; border-bottom: 1px solid var(--print);
+  font: 400 clamp(96px, 17vw, 220px)/1 var(--display); color: #dae2dc; text-transform: uppercase;
+  letter-spacing: -.02em; white-space: nowrap; user-select: none; pointer-events: none; }
+.junction span { display: block; margin: .02em 0 0 calc(var(--pad) - 8px); }
+section { scroll-margin-top: 16px; }
+
+/* the prompt as a payment slip: dashed tear lines, pen ink */
+.slip { margin: 8px 0 14px; padding: 18px 24px 22px; background: var(--pen-soft); border-top: 1px dashed var(--print-2); border-bottom: 1px dashed var(--print-2); }
+.slip-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; }
+.slip-head b { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--pen); }
+/* one paragraph per step: wrapped lines hang under the text after "1. ", commands keep their own line */
+.prompt-text { font: 15px/1.6 var(--mono); color: var(--pen); }
+.prompt-text p { margin: 0; padding-left: 3ch; text-indent: -3ch; }
+.prompt-text p:first-child, .prompt-text p:last-child { padding-left: 0; text-indent: 0; }
+.prompt-text p + p { margin-top: 6px; }
+.prompt-text p.in { text-indent: 0; margin-top: 0; }
+.nw { white-space: nowrap; }
+pre { margin: 0; overflow-x: auto; font: 15px/1.6 var(--mono); color: var(--pen); white-space: pre-wrap; }
+.plain { padding: 14px 18px; border: 1px solid var(--rule); color: var(--print); }
+code { font: 15px var(--mono); background: var(--band); padding: 1px 4px; }
+pre code { background: none; padding: 0; font: inherit; color: inherit; }
+h3 { margin: 26px 0 8px; font-size: 17px; }
+
+/* modelos as the index of a book: serif entry, dot leader, deadlines as page numbers */
+.index { max-width: 800px; margin: 18px 0 8px; padding: 0; list-style: none; }
+.index li { margin: 0 0 14px; }
+.entry { display: flex; align-items: baseline; gap: 8px; font: 400 20px/1.25 var(--display); }
+.entry b { font: 400 20px var(--mono); color: var(--pen); min-width: 3.4em; }
+.entry::after { content: ""; order: 2; flex: 1; min-width: 16px; border-bottom: 1px dotted var(--rule); transform: translateY(-5px); }
+.entry span { order: 3; font: 14px var(--mono); color: var(--print-2); white-space: nowrap; }
+.index small { display: block; margin: 2px 0 0 calc(3.4em * 20 / 15 + 8px); font-size: 15px; color: var(--print-2); }
+.calendar-note { font-size: 14px; color: var(--print-2); }
+
+/* how it works: each point filed in a casilla */
+.boxes { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 14px 24px; align-items: center; margin: 18px 0 0; }
+.box { position: relative; display: block; border: 1px solid var(--print-2); padding: 17px 10px 5px; text-align: right;
+  font: 18px var(--mono); color: var(--pen); }
+.box sup { position: absolute; left: 6px; top: 3px; font: 11px var(--sans); color: var(--print-2); }
+.boxes p { margin: 0; }
+.next { margin: 30px 0 0; padding: 12px 14px; background: #fbf1ef; border-left: 3px solid var(--stamp-late); }
+.next b { display: block; margin-bottom: 2px; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--stamp-late); }
+
+dl { max-width: 46em; margin: 8px 0 0; }
+dt { margin-top: 20px; font: 400 21px/1.3 var(--display); }
+dd { margin: 6px 0 0; }
+.foot { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px 20px; margin-top: 44px; padding-top: 12px;
+  border-top: 1px solid var(--rule); font-size: 14px; color: var(--print-2); }
+.foot a { color: var(--print-2); }
+
+/* colophon on the desk: the wordmark cut at the bottom, beside the header of Spanish papel sellado (1806–1813, public domain) */
+.colophon { container-type: inline-size; overflow: hidden; display: grid; grid-template-columns: 1fr auto; align-items: start; gap: 2cqw; }
+.colophon .giant { min-width: 0; height: .76em; overflow: hidden; padding-top: .02em; font: 400 15cqw/1 var(--display); color: #c5ccc7;
+  text-transform: uppercase; letter-spacing: -.03em; white-space: nowrap; user-select: none; }
+.colophon img { display: block; height: 11.1cqw; width: auto; margin-top: .3cqw; mix-blend-mode: multiply; filter: grayscale(1) contrast(2.2); }
+
+@media (max-width: 760px) {
+  :root { --pad: 18px; }
+  .wrap { padding: 0; }
+  .appbar { padding: 12px 14px 10px; gap: 8px 18px; flex-wrap: wrap; }
+  .appbar nav { order: 3; flex-basis: 100%; }
+  main { padding-top: 30px; }
+  .seal { width: 170px; background-size: 642px auto; background-position: -23px -32px; top: -24px; right: -40px; opacity: .35; }
+  h1 { max-width: none; }
+  .lead { font-size: 18px; }
+  .junction { margin-top: 34px; }
+  .slip { padding: 16px; }
+  .prompt-text { font-size: 14px; }
+  .boxes { grid-template-columns: 1fr; gap: 6px; }
+  .boxes p { margin-bottom: 12px; }
+  .index small { margin-left: 0; }
+  .colophon img { display: none; }
+  .colophon .giant { font-size: 21cqw; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="appbar">
+  <a class="brand" href="./">gestor</a>
+  <nav aria-label="Sections">
+    <a href="#start">Agent</a>
+    <a href="#modelos">Modelos</a>
+    <a href="#how">How it works</a>
+    <a href="#faq">Questions</a>
+  </nav>
+  <a class="gh" href="https://github.com/gestor-es/gestor-es">GitHub</a>
+</header>
+<main>
+  <div class="hero">
+    <div class="seal" aria-hidden="true"></div>
+    <p class="kicker">Open source · for autónomos and SLs in Spain</p>
+    <h1>A local gestor for autónomos and SLs in Spain</h1>
+    <p class="lead">Invoices, expenses, IVA, IRPF, Beckham, RETA and the filing calendar. gestor computes your returns and explains every amount with the law. You file them yourself.</p>
+    <p class="stamps">
+      <span class="stamp late">Alpha · not tax advice</span>
+      <span class="stamp ok">MIT · free</span>
+      <span class="stamp wait">Runs on your computer</span>
+    </p>
+    <div class="cta">
+      <a class="btn primary" href="#start">Install with your agent</a>
+      <a class="btn" href="https://github.com/gestor-es/gestor-es">Source on GitHub</a>
+    </div>
+  </div>
+
+  <section id="start">
+    <div class="junction" aria-hidden="true"><span>agente</span></div>
+    <h2>Start with your agent</h2>
+    <p class="sub">Paste this into Claude Code or Codex. The agent installs gestor and guides your first session, one question at a time. It never files, signs or pays.</p>
+    <!-- same text as README.md "Start with your agent" in gestor-es/gestor-es, reflowed one step per line; keep in sync -->
+    <div class="slip">
+      <div class="slip-head"><b>For Claude Code or Codex</b><button class="btn primary" type="button" id="copy">Copy</button></div>
+<div class="prompt-text" id="prompt">
+<p>Install gestor from <span class="nw">https://github.com/gestor-es/gestor-es</span> and guide my first session. Talk to me in my language.</p>
+<p>1. Clone it into <span class="nw">~/gestor-es</span>. gestor needs Python 3.12+: if python3 is older, help me install a newer one and use it below.</p>
+<p>2. In <span class="nw">~/gestor-es</span> start the interface so it keeps running after you exit:</p>
+<p class="in">nohup python3 -m gestor &gt; gestor.log 2&gt;&amp;1 &amp;</p>
+<p class="in">Then give me the link http://127.0.0.1:8765.</p>
+<p>3. Connect the gestor MCP server for your program with the command from the README section "Help in the Sede from Claude Code or Codex", run from <span class="nw">~/gestor-es</span>.</p>
+<p>4. Tell me to restart you in <span class="nw">~/gestor-es</span> so the server loads (<span class="nw">`claude --continue`</span> or <span class="nw">`codex resume --last`</span>) and to write "continue". Then follow the gestor server's First session instructions.</p>
+<p>Never file, sign or pay anything. Never ask for my Cl@ve PIN, passwords or certificate passphrase.</p>
+</div>
+    </div>
+    <p>Later sessions: in Claude Code type <code>/mcp__gestor__start</code>; in Codex write “start gestor”. The agent names the nearest deadline and what it needs.</p>
+    <h3>Without an agent</h3>
+<pre class="plain"><code>git clone https://github.com/gestor-es/gestor-es ~/gestor-es
+cd ~/gestor-es
+python3 -m gestor        # http://127.0.0.1:8765, data in ~/.gestor</code></pre>
+  </section>
+
+  <section id="modelos">
+    <div class="junction" aria-hidden="true"><span>303</span></div>
+    <h2>What it computes</h2>
+    <p class="sub">Every return an autónomo or a one-person SL meets in a year, with its usual deadline. gestor moves deadlines that fall on weekends and national holidays.</p>
+    <ul class="index">
+      <li><span class="entry"><b>303</b>IVA<span>20.04 · 20.07 · 20.10 · 30.01</span></span><small>Quarterly IVA return</small></li>
+      <li><span class="entry"><b>130</b>IRPF prepayment<span>20.04 · 20.07 · 20.10 · 30.01</span></span><small>Autónomo under the general IRPF</small></li>
+      <li><span class="entry"><b>111</b>Retenciones<span>20.04 · 20.07 · 20.10 · 20.01</span></span><small>Withheld from professionals and salaries you pay</small></li>
+      <li><span class="entry"><b>115</b>Rent retenciones<span>20.04 · 20.07 · 20.10 · 20.01</span></span><small>Office rent with retención</small></li>
+      <li><span class="entry"><b>349</b>EU operations<span>20.04 · 20.07 · 20.10 · 30.01</span></span><small>Only in quarters with EU clients or suppliers</small></li>
+      <li><span class="entry"><b>202</b>IS prepayment<span>20.04 · 20.10 · 20.12</span></span><small>Sociedad Limitada</small></li>
+      <li><span class="entry"><b>390</b>IVA, annual<span>30.01</span></span><small>Summary of the year's 303</small></li>
+      <li><span class="entry"><b>347</b>Third parties<span>February</span></span><small>Operations over 3 005,06 € per counterparty</small></li>
+      <li><span class="entry"><b>100</b>Renta<span>April–30.06</span></span><small>Annual IRPF, estimate</small></li>
+      <li><span class="entry"><b>151</b>Beckham<span>April–30.06</span></span><small>Special regime of art. 93, estimate</small></li>
+      <li><span class="entry"><b>200</b>Impuesto sobre Sociedades<span>25.07</span></span><small>SL, estimate</small></li>
+      <li><span class="entry"><b>RETA</b>Social security<span>monthly</span></span><small>Cuota of the self-employed</small></li>
+    </ul>
+    <p class="calendar-note">Regional IRPF scales: Comunitat Valenciana, Asturias, Madrid, Cataluña and Andalucía. Other regions use the state scale as an approximation, and the screen says so.</p>
+  </section>
+
+  <section id="how">
+    <div class="junction" aria-hidden="true"><span>§ ley</span></div>
+    <h2>How it works</h2>
+    <div class="boxes">
+      <span class="box"><sup>01</sup>local</span>
+      <p>Runs on your computer. Python 3.12+, standard library only, one SQLite file per profile in <code>~/.gestor</code>.</p>
+      <span class="box"><sup>02</sup>§</span>
+      <p>Every amount has a § mark that opens its source: the Spanish quote from BOE, AEAT or DGT, a translation and what it means for you.</p>
+      <span class="box"><sup>03</sup>MCP</span>
+      <p>An MCP server lets Claude Code or Codex read your books and returns. It writes drafts only after your explicit “yes”.</p>
+      <span class="box"><sup>04</sup>Validar</span>
+      <p>In the AEAT Sede the agent opens the form, imports the file or types the casillas and presses “Validar”. It does not press “Presentar”. You sign.</p>
+      <span class="box"><sup>05</sup>EN · ES · RU</span>
+      <p>Interface, legal sources, knowledge base and docs in English, Spanish and Russian.</p>
+    </div>
+    <div class="next"><b>Not covered yet</b>Bank import, full SL bookkeeping (journal, annual accounts), Verifactu. The Sede import files are not yet validated on the real Sede.</div>
+  </section>
+
+  <section id="faq">
+    <div class="junction" aria-hidden="true"><span>dudas</span></div>
+    <h2>Questions</h2>
+    <dl>
+      <dt>Does gestor file my tax returns?</dt>
+      <dd>No. gestor computes the returns and prepares a file for the AEAT Sede import. You check the figures and sign in the Sede yourself.</dd>
+      <dt>Where is my data stored?</dt>
+      <dd>On your computer, in one SQLite file per profile in <code>~/.gestor</code>.</dd>
+      <dt>Who is gestor for?</dt>
+      <dd>An autónomo in Spain under the general IRPF or the Beckham regime, and a one-person Sociedad Limitada with service income.</dd>
+      <dt>Which AI agents work with gestor?</dt>
+      <dd>Claude Code and Codex, through the gestor MCP server.</dd>
+      <dt>Is gestor tax advice?</dt>
+      <dd>No. It calculates and explains with sources from BOE, AEAT and TGSS. Check every figure before you sign.</dd>
+      <dt>How much does gestor cost?</dt>
+      <dd>Nothing. It is open source under the MIT license.</dd>
+    </dl>
+    <div class="foot">
+      <span>gestor calculates; you file yourself in the Sede AEAT. Not tax advice.</span>
+      <span><a href="https://github.com/gestor-es/gestor-es">github.com/gestor-es/gestor-es</a> · MIT · Fonts PT Sans, PT Mono, Prata (<a href="fonts/OFL.txt">OFL</a>)</span>
+    </div>
+  </section>
+</main>
+</div>
+<footer class="colophon wrap" aria-hidden="true"><div class="giant">gestor</div><img src="img/papel-sellado.jpg" alt="" width="800" height="368"></footer>
+<script>
+document.getElementById("copy").onclick = async (e) => {
+  const lines = [...document.querySelectorAll("#prompt p")].map((p) => (p.classList.contains("in") ? "   " : "") + p.textContent);
+  await navigator.clipboard.writeText(lines.join("\n"));
+  e.target.textContent = "Copied";
+  setTimeout(() => (e.target.textContent = "Copy"), 1500);
+};
+</script>
+</body>
+</html>
